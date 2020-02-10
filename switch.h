@@ -1,0 +1,1 @@
+#define ISUNO 1
