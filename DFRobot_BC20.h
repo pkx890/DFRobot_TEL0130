@@ -4,7 +4,6 @@
 #include "Arduino.h"
 #include "DFRobot_BC20AT.h"
 #include "DFRobot_queue.h"
-#include "MemoryFree.h"
 #ifndef ARDUINO_ESP32_DEV
 #include "SoftwareSerial.h"
 #endif
