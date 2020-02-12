@@ -3,7 +3,7 @@ The library is used to capture and parse satellite data and communicate with Int
 The DFRobot_TEL0130 library is an arduino-based library
 ##Installation
 To use this library, download the zip file and extract it into a folder called DFRobot_TEL0130.
-##Methods 
+#Methods 
 ```
 /*
    *@Used to open BC20 with a bool return value.  
