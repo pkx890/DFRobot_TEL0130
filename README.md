@@ -3,7 +3,7 @@ The library is used to capture and parse satellite data and communicate with Int
 The DFRobot_TEL0130 library is an arduino-based library
 ##Installation
 To use this library, download the zip file and extract it into a folder called DFRobot_TEL0130.  
-# Methods 
+## Methods 
 ```
 /*
    *@Used to open BC20 with a bool return value.  
@@ -111,10 +111,10 @@ To use this library, download the zip file and extract it into a folder called D
     *@Used to obtain the strength of the current network signal
 */
 `void getSQ(void);`
-```
-##Compatibility  
+```  
+## Compatibility  
 FireBeetle-ESP32  |  Work Well  
 Arduino uno       |  Work Well  
 ATmega2560        |  Work Well
-##Credits
+## Credits
 Written by Frank(kaixing.peng@dfrobot.com), 2020. (Welcome to our website)
