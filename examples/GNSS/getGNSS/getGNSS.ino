@@ -4,7 +4,7 @@
  * @Compiling this DEMO with UNO will fail, requiring a more advanced master board
  * @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
  * @licence     The MIT License (MIT)
- * @author      [Wuxiao](xiao.wu@dfrobot.com)
+ * @author      [Peng Kaixing](kaixing.peng@dfrobot.com)
  * @version  V1.0
  * @date  2019-10-29
  * @get from https://www.dfrobot.com
@@ -137,5 +137,5 @@ void loop(){
     myBC20.getQGNSSRD();
     Display_Location_Information();
     Display_Satellite_Information();
-	myBC20.clearGPS();
+    myBC20.clearGPS();
 }

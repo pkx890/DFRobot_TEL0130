@@ -82,45 +82,60 @@
  */
  #include "DFRobot_BC20.h"
 
-/*IIC_addr(A0,A1):0x30(A0=0,A1=0),0x31(A0=0,A1=1),0x32(A0=1,A1=0),0x33(A0=1,A1=1)*/
+#define USE_IIC
+//#define USE_HSERIAL
+//#define USE_SSERIAL
+/******************IIC******************/
+#ifdef USE_IIC
+/*
+ * For general controllers. Communicate by IIC
+ * Connect Instructions
+ *    Controller     |    Module(BC20)
+ *        SDA        |       D/T
+ *        SCL        |       C/R
+ *        GND        |       GND
+ *     5V or 3V3     |       VCC
+ *
+ *
+ * IIC_addr(A0,A1)
+ *   0x30:(A0=0,A1=0)
+ *   0x31:(A0=0,A1=1)
+ *   0x32:(A0=1,A1=0)
+ *   0x33:(A0=1,A1=1)
+ */
 DFRobot_BC20_IIC myBC20(0x33);
-//For general controllers. Communicate by IIC
+/******************HardwareSerial******************/
+#elif defined(USE_HSERIAL)
 /*
-   Connect Instructions
-      Controller     |    Module(BC20)
-          SDA        |       D/T
-          SCL        |       C/R
-          GND        |       GND
-       5V or 3V3     |       VCC
-
-*/
-
-/*HardwareSerial*/
+ * Connect Instructions
+ * esp32      |               MEGA Series    |    Module(BC20)
+ * IO17       |               D16(RX)        |       D/T
+ * IO16       |               D17(TX)        |       C/R
+ * GND        |               GND            |       GND
+ * 5V(USB) or 3V3(battery)  | 5V or 3V3      |       VCC
+ */
 //For MEGA2560/ESP32 HardwareSerial
-//HardwareSerial Serial2(2);DFRobot_BC20_Serial myBC20(&Serial2);//ESP32HardwareSerial
-//DFRobot_BC20_Serial myBC20(&Serial1);//others
+#if defined(ARDUINO_ESP32_DEV)
+HardwareSerial Serial2(2);
+DFRobot_BC20_Serial myBC20(&Serial2);//ESP32HardwareSerial
+#else
+DFRobot_BC20_Serial myBC20(&Serial1);//others
+#endif
+/******************SoftwareSerial******************/
+#elif defined(USE_SSERIAL)
 /*
-   Connect Instructions
-   esp32      |               MEGA Series    |    Module(BC20)
-   IO17       |               D16(RX)        |       D/T
-   IO16       |               D17(TX)        |       C/R
-   GND        |               GND            |       GND
-   5V(USB) or 3V3(battery)  | 5V or 3V3      |       VCC
+ *  Connect Instructions
+ *      UNO     |    Module(BC20)
+ *    PIN_RXD   |       D/T
+ *    PIN_TXD   |       C/R
+ *      GND     |       GND
+ *   5V or 3V3  |       VCC
 */
-
-/*SoftwareSerial*/
-//#define PIN_TXD   3
-//#define PIN_RXD   4
-//SoftwareSerial ss(PIN_TXD,PIN_RXD);
-//DFRobot_BC20_SW_Serial myBC20(&ss);
-/*
-   Connect Instructions
-        UNO     |    Module(BC20)
-      PIN_RXD   |       D/T
-      PIN_TXD   |       C/R
-        GND     |       GND
-     5V or 3V3  |       VCC
-*/
+#define PIN_TXD   3
+#define PIN_RXD   4
+SoftwareSerial ss(PIN_TXD,PIN_RXD);
+DFRobot_BC20_SW_Serial myBC20(&ss);
+#endif
 
 //To wake STM32, the IRQ pin in the NB module is connected to the wakeup_pin
 #define wakeup_pin 7
@@ -130,7 +145,6 @@ int nowTime=0;
 void setup() {
   Serial.begin(115200);
   Serial.println("Starting the BC20.Please wait. . . ");
-
   //Power on BC20.
   while (!myBC20.powerOn()) {
     delay(1000);
@@ -203,30 +217,29 @@ void setup() {
 
 void loop() {
   //STM32 and BC20 will go into low power mode every 5 seconds
-  if(millis()-nowTime>5000)
-  {
+  if(millis()-nowTime>5000){
     Serial.println("Entering PSM!");
     myBC20.configSleepMode(eSleepMode_DeepSleep);
     myBC20.stmLowpower();
     nowTime=millis();
     }
-	if(Serial.available()){
-    tempdata+=(char)Serial.read();
-	}
-  if(tempdata.length()>0){
-    myBC20.sendATCMD(tempdata);
-    tempdata="";
-   }
-	if(myBC20.available()){
-	  Serial.println(myBC20.readData());
-	} 
+    if(Serial.available()){
+      tempdata+=(char)Serial.read();
+    }
+    if(tempdata.length()>0){
+      myBC20.sendATCMD(tempdata);
+      tempdata="";
+    }
+    if(myBC20.available()){
+      Serial.println(myBC20.readData());
+    } 
 //Provide the IRQ with a rising edge pulse
-	myBC20.stmAwake(wakeup_pin);
-	Serial.println("Wake up from PSM!");
-	if(myBC20.BC20WakeUp()){
-    Serial.println("quit PSM success!");
-  }else{
-    Serial.println("quit PSM fail!");
+    myBC20.stmAwake(wakeup_pin);
+    Serial.println("Wake up from PSM!");
+    if(myBC20.BC20WakeUp()){
+      Serial.println("quit PSM success!");
+    }else{
+      Serial.println("quit PSM fail!");
     }    
-	delay(1000);
+    delay(1000);
 }

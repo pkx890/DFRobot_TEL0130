@@ -47,45 +47,60 @@
 
 #include <DFRobot_BC20.h>
 
-/*IIC_addr(A0,A1):0x30(A0=0,A1=0),0x31(A0=0,A1=1),0x32(A0=1,A1=0),0x33(A0=1,A1=1)*/
-//DFRobot_BC20_IIC myBC20(0x33);
-//For general controllers. Communicate by IIC
+#define USE_IIC
+//#define USE_HSERIAL
+//#define USE_SSERIAL
+/******************IIC******************/
+#ifdef USE_IIC
 /*
-   Connect Instructions
-      Controller     |    Module(BC20)
-          SDA        |       D/T
-          SCL        |       C/R
-          GND        |       GND
-       5V or 3V3     |       VCC
-
-*/
-
-/*HardwareSerial*/
+ * For general controllers. Communicate by IIC
+ * Connect Instructions
+ *    Controller     |    Module(BC20)
+ *        SDA        |       D/T
+ *        SCL        |       C/R
+ *        GND        |       GND
+ *     5V or 3V3     |       VCC
+ *
+ *
+ * IIC_addr(A0,A1)
+ *   0x30:(A0=0,A1=0)
+ *   0x31:(A0=0,A1=1)
+ *   0x32:(A0=1,A1=0)
+ *   0x33:(A0=1,A1=1)
+ */
+DFRobot_BC20_IIC myBC20(0x33);
+/******************HardwareSerial******************/
+#elif defined(USE_HSERIAL)
+/*
+ * Connect Instructions
+ * esp32      |               MEGA Series    |    Module(BC20)
+ * IO17       |               D16(RX)        |       D/T
+ * IO16       |               D17(TX)        |       C/R
+ * GND        |               GND            |       GND
+ * 5V(USB) or 3V3(battery)  | 5V or 3V3      |       VCC
+ */
 //For MEGA2560/ESP32 HardwareSerial
-//HardwareSerial Serial2(2);DFRobot_BC20_Serial myBC20(&Serial2);//ESP32HardwareSerial
-//DFRobot_BC20_Serial myBC20(&Serial1);//others
+#if defined(ARDUINO_ESP32_DEV)
+HardwareSerial Serial2(2);
+DFRobot_BC20_Serial myBC20(&Serial2);//ESP32HardwareSerial
+#else
+DFRobot_BC20_Serial myBC20(&Serial1);//others
+#endif
+/******************SoftwareSerial******************/
+#elif defined(USE_SSERIAL)
 /*
-   Connect Instructions
-   esp32      |               MEGA Series    |    Module(BC20)
-   IO17       |               D16(RX)        |       D/T
-   IO16       |               D17(TX)        |       C/R
-   GND        |               GND            |       GND
-   5V(USB) or 3V3(battery)  | 5V or 3V3      |       VCC
+ *  Connect Instructions
+ *      UNO     |    Module(BC20)
+ *    PIN_RXD   |       D/T
+ *    PIN_TXD   |       C/R
+ *      GND     |       GND
+ *   5V or 3V3  |       VCC
 */
-
-/*SoftwareSerial*/
-//#define PIN_TXD   3
-//#define PIN_RXD   4
-//SoftwareSerial ss(PIN_TXD,PIN_RXD);
-//DFRobot_BC20_SW_Serial myBC20(&ss);
-/*
-   Connect Instructions
-        UNO     |    Module(BC20)
-      PIN_RXD   |       D/T
-      PIN_TXD   |       C/R
-        GND     |       GND
-     5V or 3V3  |       VCC
-*/
+#define PIN_TXD   3
+#define PIN_RXD   4
+SoftwareSerial ss(PIN_TXD,PIN_RXD);
+DFRobot_BC20_SW_Serial myBC20(&ss);
+#endif
 
 static void NB_Signal_Fun() {
   /*
@@ -104,13 +119,13 @@ static void NB_Signal_Fun() {
   Serial.println("Long press SET for over 1 sec to start...");
   Serial.print("Starting the BC20. Please wait... ");
   while (!myBC20.powerOn()) {
-	myBC20.LED_flash("R");
+    myBC20.LED_flash("R");
     Serial.print(".");
   }
   Serial.println("BC20 started successfully !");
   //Check whether a NB-IoT SIM card is available.
   while (!myBC20.checkNBCard()) {
-	myBC20.LED_flash("G");
+    myBC20.LED_flash("G");
     Serial.println("Please insert the NB SIM card !");
     delay(1000);
   }
@@ -126,65 +141,61 @@ static void NB_Signal_Fun() {
   //Check whether it is attached to the network
   //BC20 will automatically connect and register on network after power on
   while (myBC20.getGATT() == 0) {
-	myBC20.LED_flash("B");
+    myBC20.LED_flash("B");
     Serial.print(".");
     delay(1000);
   }
   Serial.println("Network connected!");
 
   while (1) {
-      myBC20.getSQ();
-      //Signal quality RSSI<10, weak signal strength
-      if (sSQ.rssi < 10 || sSQ.rssi == 99) {
-        myBC20.control_LED("LED_W_ON");  
-        myBC20.control_LED("LED_W_OFF"); 
-        //led.BurstFlash();
-        if (sSQ.rssi == 99) {
-          Serial.println("Signal not detectable");
-        } else if (sSQ.rssi == 0) {
-          Serial.println("Signal Strength: -113 dBm or less");
-        } else {
-          Serial.print("Signal Strength: ");
-          Serial.print((sSQ.rssi - 2) * 2 - 109);
-          Serial.println(" dBm Weak");
-        }
-      }
-      //Signal quality 10<=RSSI<25, medium signal strength
-      else if (sSQ.rssi >= 10  && sSQ.rssi < 25) {
-        myBC20.control_LED("LED_W_ON");
-		delay(500);		
-        myBC20.control_LED("LED_W_OFF");
-		delay(500);	
-        //led.SlowFlash();
+    myBC20.getSQ();
+    //Signal quality RSSI<10, weak signal strength
+    if(sSQ.rssi < 10 || sSQ.rssi == 99){
+      myBC20.control_LED("LED_W_ON");  
+      myBC20.control_LED("LED_W_OFF"); 
+      //led.BurstFlash();
+      if(sSQ.rssi == 99){
+        Serial.println("Signal not detectable");
+      }else if(sSQ.rssi ==0) {
+        Serial.println("Signal Strength: -113 dBm or less");
+      }else{
         Serial.print("Signal Strength: ");
         Serial.print((sSQ.rssi - 2) * 2 - 109);
-        Serial.println(" dBm Medium");
-
+        Serial.println(" dBm Weak");
       }
-      //Signal quality RSSI>=25, strong signal strength
-      else if (sSQ.rssi >= 25) {
-        if (sSQ.rssi < 31) {
-          for (int i = 0; i < 5 ; i++) {
-			myBC20.control_LED("LED_W_ON");
-			delay(100);		
-			myBC20.control_LED("LED_W_OFF");
-			delay(100);
-            //led.FastFlash();
-          }
-          Serial.print("Signal Strength: ");
-          Serial.print((sSQ.rssi - 2) * 2 - 109);
-          Serial.println(" dBm Strong");
+    }
+    //Signal quality 10<=RSSI<25, medium signal strength
+    else if(sSQ.rssi >= 10  && sSQ.rssi < 25){
+      myBC20.control_LED("LED_W_ON");
+      delay(500);		
+      myBC20.control_LED("LED_W_OFF");
+      delay(500);	
+      //led.SlowFlash();
+      Serial.print("Signal Strength: ");
+      Serial.print((sSQ.rssi - 2) * 2 - 109);
+      Serial.println(" dBm Medium");
+    }
+    //Signal quality RSSI>=25, strong signal strength
+    else if (sSQ.rssi >= 25){
+      if(sSQ.rssi < 31){
+        for (int i = 0; i < 5 ; i++) {
+          myBC20.control_LED("LED_W_ON");
+          delay(100);		
+          myBC20.control_LED("LED_W_OFF");
+          delay(100);
+          //led.FastFlash();
         }
-        else if (sSQ.rssi == 31) {
-          Serial.print("Signal Strength: -51 dBm or greater");
-        }
-      }
-    else {
+        Serial.print("Signal Strength: ");
+        Serial.print((sSQ.rssi - 2) * 2 - 109);
+        Serial.println(" dBm Strong");
+      }else if (sSQ.rssi == 31) {
+         Serial.print("Signal Strength: -51 dBm or greater");
+       }
+    }else{
       break;
     }
   }
 }
-
 void setup() {
   Serial.begin(115200);
   NB_Signal_Fun();

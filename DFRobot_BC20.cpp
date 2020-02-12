@@ -119,7 +119,6 @@ char* DFRobot_BC20::GetSthfrontString(char* sth, char* str){/*Returns the string
 	}
 	ret1=(char*)malloc(strlen(str)+1);
 	ret1[strlen(str)]='\0';
-	//char*tempdata;
 	memcpy(ret1,str,strlen(str));
     char* temp = sth;
     uint8_t tempInt = 0;
@@ -151,10 +150,8 @@ void DFRobot_BC20::flushBC20Serial(void){/*Clear the BC20 serial port of unproce
 }
 
 void DFRobot_BC20::getRecData(uint8_t INFO){/*Gets information about a parameter from the returned data.For example, the CIMI number of the SIM card*/
-    //uint8_t *tempData=NULL;
     static struct sQueueData *p;
 	static struct sQueueData *q;
-    //tempData = (uint8_t *)malloc(1);
     do{
         p = cuappDequeue();
         if(strncmp((const char* )p->data,"\r\n",2) == 0){
@@ -169,13 +166,6 @@ void DFRobot_BC20::getRecData(uint8_t INFO){/*Gets information about a parameter
 			p=NULL;
 			break;
 		}
-/*         tempData = (uint8_t *)malloc((q->len)+1);
-        if(tempData != NULL){
-            free(tempData);
-            tempData = NULL;
-        }		
-        memset(tempData,'\0',q->len+1);
-        memcpy(tempData,q->data,q->len); */		
         free(p);
 		p=NULL;		
     }while(p != NULL);
@@ -198,8 +188,6 @@ void DFRobot_BC20::getRecData(uint8_t INFO){/*Gets information about a parameter
 			q=NULL;		
             break;
     }
-    //free(tempData);
-	//tempData=NULL;
     flushBC20Serial();
 }
 uint8_t DFRobot_BC20::getTailHandle(){
@@ -275,14 +263,6 @@ void DFRobot_BC20::getRecDataforNum_NoCheck(uint8_t num, uint8_t* &buf){/*Gets t
 }
 
 uint8_t DFRobot_BC20::getIntforString(String CMD,String basic,uint8_t n){/*Send the command and get the number specified in the returned command*/
-/*     uint8_t* data;
-	sendATCMD(CMD);
-    receviceATCMD(1000);
-    getRecDataforNum(2,data);
-	if(data != NULL){
-		free(data);
-		data=NULL;
-    } */
      uint8_t *data=NULL;
     String tempStr;
 	int a=0;
@@ -316,7 +296,6 @@ DFRobot_BC20::DFRobot_BC20(void){
     pinMode(PSW_EINT,OUTPUT);
     pinMode(POWERKEY,OUTPUT);
     digitalWrite(POWERKEY, LOW);
-    //digitalWrite(PSW_EINT,LOW);
 }
 
 DFRobot_BC20::~DFRobot_BC20(void){
@@ -722,8 +701,8 @@ uint8_t * DFRobot_BC20 :: getIMI(void){
     flushBC20Serial();
     sendATCMD(GET_IMI);
     receviceATCMD(300);
-    /* getRecDataforNum(2,data); */getRecData(CIMI_INFO);
-    /* return data; */return (uint8_t *)sSIMCard.IMEI_NUM;
+    getRecData(CIMI_INFO);
+    return (uint8_t *)sSIMCard.IMEI_NUM;
 }
 
 /*!
@@ -820,21 +799,6 @@ String DFRobot_BC20 :: getCLK(void){
     sCLK.TimeEquation = tempStr.toInt();
     sCLK.Hour = sCLK.Hour+sCLK.TimeEquation;
     tempStr = GetSthfrontString("\r\n",tempStr);
-    //sCLK.Mode = (static const char*)"GMT" + tempStr;
-    /*struct tm timeinfo;
-    timeinfo.tm_hour = sCLK.Hour;
-    timeinfo.tm_min  = sCLK.Minute;
-    timeinfo.tm_sec  = sCLK.Second;
-    timeinfo.tm_year = sCLK.Year;
-    timeinfo.tm_mon  = sCLK.Month;
-    timeinfo.tm_mday = sCLK.Day;
-    mktime(&timeinfo);
-    sCLK.Year = timeinfo.tm_year;
-    sCLK.Month = timeinfo.tm_mon;
-    sCLK.Day = timeinfo.tm_mday;
-    sCLK.Hour = timeinfo.tm_hour;
-    sCLK.Minute = timeinfo.tm_min;
-    sCLK.Second = timeinfo.tm_sec;*/
     return retStr;
 }
 
@@ -1299,13 +1263,9 @@ uint8_t DFRobot_BC20 :: getQGNSSRD(void){
     sGGNS.LongitudeVal = Longitude_conversion(sRMC.LongitudeVal());
     sGGNS.LongitudeDir = sRMC.LongitudeDir();
     getQGNSSRD(NMEA_VTG);
-    //sGGNS.Speed = GetSthfrontString(".",sVTG.GroundCourse_Kmh).toInt();
-    //sGGNS.Speed = atof(sVTG.GroundCourse_Kmh.c_str());
-    //sGGNS.Heading = atof(sVTG.GroundCourse_True.c_str());
     sGGNS.Speed = atof(sVTG.GroundCourse_Kmh());
     sGGNS.Heading = atof(sVTG.GroundCourse_True());	
     getQGNSSRD(NMEA_GGA);
-    //sGGNS.Altitude = atof(sGGA.Altitude.c_str());
     getQGNSSRD(NMEA_GSA);
     sGGNS.PDOP = sGSA.data[0].PDOP();
     sGGNS.HDOP = sGSA.data[0].HDOP();
@@ -1341,10 +1301,8 @@ static void CheckSatelliteUse(uint8_t num){
 	char* tempdata;
 	char*d;
 	int addr;
-    //if(sSAT.data[num].SYS.equals("GPS")){	
 	if(strcmp(sSAT.data[num].SYS(),"GPS")==0){	
         temp = 0;
-    //}else if(sSAT.data[num].SYS.equals("BeiDou")){
 	}else if(strcmp(sSAT.data[num].SYS(),"BeiDou")==0){			
         temp = 1;
     }else{
@@ -1352,7 +1310,6 @@ static void CheckSatelliteUse(uint8_t num){
     }		
     for(uint8_t i =0; i < 12; i++){
         if(strcmp(sSAT.data[num].PRN(),sGSA.data[temp].Statellite_CH(i))==0){
-		//if(sSAT.data[num].PRN.equals(sGSA.data[temp].Statellite_CH[i])){
 			sSAT.data[num].NUM=num;
 			addr=(sSAT.data[num].NUM)*21+3+3+3+3;
 			tempdata="Y";
@@ -1360,7 +1317,6 @@ static void CheckSatelliteUse(uint8_t num){
 		    for(int j=0;j<strlen(d);j++){
 			  EEPROM.write(addr+j,d[j]);
 			  }            
-			//sSAT.data[num].Status = "Y";
             return;
         }
     }
@@ -1378,7 +1334,6 @@ void DFRobot_BC20::getSatelliteInformation(uint8_t start, uint8_t num, char* str
 	char*d;
 	char* tempdata;
     for(uint8_t i = 0; i < num;i++){
-		//tempdata=GetSthfrontString(",",tempStr);
         if(strlen(GetSthfrontString(",",tempStr)) == 0){
 			sSAT.data[i+start].NUM=i+start;
 			addr=(sSAT.data[i+start].NUM)*21;
@@ -1386,7 +1341,6 @@ void DFRobot_BC20::getSatelliteInformation(uint8_t start, uint8_t num, char* str
 		    for(int j=0;j<strlen(d);j++){
 			  EEPROM.write(addr+j,d[j]);
 			  }	
-            //sSAT.data[i+start].PRN= "N/A";
         }else{
 			sSAT.data[i+start].NUM=i+start;
 			addr=(sSAT.data[i+start].NUM)*21;
@@ -1574,6 +1528,10 @@ bool DFRobot_BC20 :: getQGNSSRD(char* cmd){
 					{
 						sSAT.NUM=3;
 					}
+#ifdef ARDUINO_AVR_UNO
+					if(sSAT.NUM>11)
+					sSAT.NUM=11;
+#endif					
                 }
                 if(NumSAT /(NumSEN*4) > 0){
                     getSatelliteInformation(StartNum,4,tempStr,tempSYS);
@@ -2202,12 +2160,6 @@ bool DFRobot_BC20 :: connectServer(char connectID, char* clientID, char* UserNam
 }
 
 bool DFRobot_BC20 :: connect(char * clientID, char * username,char * password,char connectID){
-/*     char* ClientID_str = "";
-	char* username_str = "";
-	char* password_str = "";
-    ClientID_str = clientID;
-    username_str = username;
-    password_str = password; */
 	return connectServer(connectID,clientID,username,password);
 }
 
@@ -2427,42 +2379,6 @@ void DFRobot_BC20 :: loop(){
 		free(tempStr);
 		tempStr=NULL;
 	}	
-/* 	char* tempStr;	
-	char* tempdata;
-	if(available()){
-	tempdata = readData().c_str();
-	tempStr =(char*)malloc(strlen(tempdata)+1);
-	if(tempStr==NULL)
-	{
-		free(tempStr);
-		return;
-	}
-	memset(tempStr,'\0',strlen(tempdata)+1);
-	memcpy(tempStr,tempdata,strlen(tempdata));
-	//tempdata="";
-	 if(indexOf(tempStr,"+QMTRECV: ") != -1){
- 		tempStr = removeSthString("+QMTRECV: ",tempStr);
-		uint8_t connectID,msgID;
-		char* Topic;
-		char* RecData;
-		connectID = atoi(GetSthfrontString(",",tempStr));
-		tempStr = removeSthString(",",tempStr);
-		msgID = atoi(GetSthfrontString(",",tempStr));
-		tempStr = removeSthString(",\"",tempStr);
-		Topic = GetSthfrontString("\",",tempStr);
-		tempStr = removeSthString("\",\"",tempStr);
-		RecData = GetSthfrontString("\"\r\n",tempStr);
-		if(callback){
-			callback((char *)(Topic),(uint8_t *)(RecData),strlen(RecData));
-		} 
-	}else if(indexOf(tempStr,"ENTER PSM") != -1){
-		if(PSMcallback){
-			PSMcallback();
-		} 
-	} 
-	}
-	free(tempStr);
-	tempStr=NULL; */
 }
 
 bool DFRobot_BC20::configSleepMode(eSleepMode_t mode){
@@ -3402,7 +3318,6 @@ void DFRobot_BC20_SW_Serial::receviceATCMD(uint32_t timeout){
 			}		
 		if((tempData.length() > 0)&&(flag==1)){	
 			tempInt = tempData.indexOf("\r\n");
-			//DBG(tempData);
 			cuappEnqueue((uint8_t *)((tempData.substring(0,tempInt+2)).c_str()),tempInt+2,tempNum);
 			if((tempData.indexOf("OK\r\n") != -1))
 			{
@@ -3416,31 +3331,5 @@ void DFRobot_BC20_SW_Serial::receviceATCMD(uint32_t timeout){
 		}		      
     }
 	sRecData.dataNum = tempNum-1;
-	
-	
-/*     String tempData="";
-    int tempInt;
-    uint8_t tempNum = 0;
-    uint32_t nowtime = millis();
-    while(millis() - nowtime < timeout){
-        while(SSerial->available() > 0){
-            tempData += (char)SSerial->read();        
-        }
-        if((tempData.indexOf("OK") != -1)){
-            break;
-        }
-    }
-    if(tempData.length() > 0){
-		DBG(tempData);
-        do{
-            tempInt = tempData.indexOf("\r\n");
-            if(tempInt != -1){
-                cuappEnqueue((uint8_t *)((tempData.substring(0,tempInt+2)).c_str()),tempInt+2,tempNum);
-                tempData = tempData.substring(tempInt + 2, tempData.length());
-                tempNum ++;
-            }
-        }while(tempInt >= 0);
-        sRecData.dataNum = tempNum-1;
-    }	 */
 }
 #endif

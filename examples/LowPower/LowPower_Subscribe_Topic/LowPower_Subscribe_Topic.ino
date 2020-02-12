@@ -1,5 +1,5 @@
 /*!
- * @file Subscribe_Topic.ino
+ * @file LowPower_Subscribe_Topic.ino
  * 
  * @brief After the program download is complete.
  * @brief You can use the BC20 module to connect to DFRobot Easy IOT cloud platform,
@@ -27,47 +27,60 @@ char* PORT = "1883";
 /*Set the Topic you need to publish to*/
 char* subTopic = "QjREoXEZg";
 
-/*IIC_addr(A0,A1):0x30(A0=0,A1=0),0x31(A0=0,A1=1),0x32(A0=1,A1=0),0x33(A0=1,A1=1)*/
+#define USE_IIC
+//#define USE_HSERIAL
+//#define USE_SSERIAL
+/******************IIC******************/
+#ifdef USE_IIC
+/*
+ * For general controllers. Communicate by IIC
+ * Connect Instructions
+ *    Controller     |    Module(BC20)
+ *        SDA        |       D/T
+ *        SCL        |       C/R
+ *        GND        |       GND
+ *     5V or 3V3     |       VCC
+ *
+ *
+ * IIC_addr(A0,A1)
+ *   0x30:(A0=0,A1=0)
+ *   0x31:(A0=0,A1=1)
+ *   0x32:(A0=1,A1=0)
+ *   0x33:(A0=1,A1=1)
+ */
 DFRobot_BC20_IIC myBC20(0x33);
-//For general controllers. Communicate by IIC
+/******************HardwareSerial******************/
+#elif defined(USE_HSERIAL)
 /*
-   Connect Instructions
-      Controller     |    Module(BC20)
-          SDA        |       D/T
-          SCL        |       C/R
-          GND        |       GND
-       5V or 3V3     |       VCC
-
-*/
-
-/*HardwareSerial*/
+ * Connect Instructions
+ * esp32      |               MEGA Series    |    Module(BC20)
+ * IO17       |               D16(RX)        |       D/T
+ * IO16       |               D17(TX)        |       C/R
+ * GND        |               GND            |       GND
+ * 5V(USB) or 3V3(battery)  | 5V or 3V3      |       VCC
+ */
 //For MEGA2560/ESP32 HardwareSerial
-//HardwareSerial Serial2(2);DFRobot_BC20_Serial myBC20(&Serial2);//ESP32HardwareSerial
-//DFRobot_BC20_Serial myBC20(&Serial1);//others
+#if defined(ARDUINO_ESP32_DEV)
+HardwareSerial Serial2(2);
+DFRobot_BC20_Serial myBC20(&Serial2);//ESP32HardwareSerial
+#else
+DFRobot_BC20_Serial myBC20(&Serial1);//others
+#endif
+/******************SoftwareSerial******************/
+#elif defined(USE_SSERIAL)
 /*
-   Connect Instructions
-   esp32      |               MEGA Series    |    Module(BC20)
-   IO17       |               D16(RX)        |       D/T
-   IO16       |               D17(TX)        |       C/R
-   GND        |               GND            |       GND
-   5V(USB) or 3V3(battery)  | 5V or 3V3      |       VCC
+ *  Connect Instructions
+ *      UNO     |    Module(BC20)
+ *    PIN_RXD   |       D/T
+ *    PIN_TXD   |       C/R
+ *      GND     |       GND
+ *   5V or 3V3  |       VCC
 */
-
-/*SoftwareSerial*/
-//#define PIN_TXD   3
-//#define PIN_RXD   4
-//SoftwareSerial ss(PIN_TXD,PIN_RXD);
-//DFRobot_BC20_SW_Serial myBC20(&ss);
-/*
-   Connect Instructions
-        UNO     |    Module(BC20)
-      PIN_RXD   |       D/T
-      PIN_TXD   |       C/R
-        GND     |       GND
-     5V or 3V3  |       VCC
-*/
-
-//DFRobot_Iot myDevice;
+#define PIN_TXD   3
+#define PIN_RXD   4
+SoftwareSerial ss(PIN_TXD,PIN_RXD);
+DFRobot_BC20_SW_Serial myBC20(&ss);
+#endif
 
 void callback(char * topic, uint8_t * payload, unsigned int len){
   Serial.print("Recevice [");
@@ -89,7 +102,7 @@ void ConnectCloud(){
             break;
         }
      }
-	myBC20.configSleepMode(eSleepMode_Disable);
+    myBC20.configSleepMode(eSleepMode_Disable);
     while(!myBC20.subTopic('0','1',subTopic,'0'))
     {
       Serial.println("subTopicing...");
@@ -126,20 +139,18 @@ void setup(){
         delay(10);     
     }
     Serial.println("access success!");
-	
     //Enable entering PSM.
     //When PSM is entered, BC20 will not receive any commands or signal from the moblie station (i.e. not controllable)
     //However, when during DRX/eDRX, BC20 will still response to AT commands or NB signal.
     if (myBC20.setPSMMode(ePSM_ON)) {
       Serial.println("PSM ON");
-    }	
-	
+    }
     //myDevice.init(EasyIot_SERVER, Iot_id, Client_ID, Iot_pwd);
     myBC20.setServer(EasyIot_SERVER,PORT);
     myBC20.setCallback(callback);
     ConnectCloud();
     Serial.println("Connect success!!!");
-	//BC20 enter PSM
+    //BC20 enter PSM
     if (myBC20.setPSMMode(ePSM_ON)) {
       Serial.println("set psm OK");
     }
@@ -153,9 +164,8 @@ void setup(){
     if (myBC20.configSleepMode(eSleepMode_DeepSleep)) {
       Serial.println("enable BC20 sleep");
     }
-	
-	//STM32 enter PSM 
-	myBC20.stmLowpower();	
+    //STM32 enter PSM 
+    myBC20.stmLowpower();	
 }
 
 void loop(){

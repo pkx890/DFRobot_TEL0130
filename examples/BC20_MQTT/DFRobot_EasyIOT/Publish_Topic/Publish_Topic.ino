@@ -28,45 +28,60 @@ char* PORT = "1883";
 /*Set the Topic you need to publish to*/
 char* pubTopic = "QjREoXEZg";
 
-/*IIC_addr(A0,A1):0x30(A0=0,A1=0),0x31(A0=0,A1=1),0x32(A0=1,A1=0),0x33(A0=1,A1=1)*/
-//DFRobot_BC20_IIC myBC20(0x33);
-//For general controllers. Communicate by IIC
+#define USE_IIC
+//#define USE_HSERIAL
+//#define USE_SSERIAL
+/******************IIC******************/
+#ifdef USE_IIC
 /*
-   Connect Instructions
-      Controller     |    Module(BC20)
-          SDA        |       D/T
-          SCL        |       C/R
-          GND        |       GND
-       5V or 3V3     |       VCC
-
-*/
-
-/*HardwareSerial*/
+ * For general controllers. Communicate by IIC
+ * Connect Instructions
+ *    Controller     |    Module(BC20)
+ *        SDA        |       D/T
+ *        SCL        |       C/R
+ *        GND        |       GND
+ *     5V or 3V3     |       VCC
+ *
+ *
+ * IIC_addr(A0,A1)
+ *   0x30:(A0=0,A1=0)
+ *   0x31:(A0=0,A1=1)
+ *   0x32:(A0=1,A1=0)
+ *   0x33:(A0=1,A1=1)
+ */
+DFRobot_BC20_IIC myBC20(0x33);
+/******************HardwareSerial******************/
+#elif defined(USE_HSERIAL)
+/*
+ * Connect Instructions
+ * esp32      |               MEGA Series    |    Module(BC20)
+ * IO17       |               D16(RX)        |       D/T
+ * IO16       |               D17(TX)        |       C/R
+ * GND        |               GND            |       GND
+ * 5V(USB) or 3V3(battery)  | 5V or 3V3      |       VCC
+ */
 //For MEGA2560/ESP32 HardwareSerial
-//HardwareSerial Serial2(2);DFRobot_BC20_Serial myBC20(&Serial2);//ESP32HardwareSerial
-//DFRobot_BC20_Serial myBC20(&Serial1);//others
+#if defined(ARDUINO_ESP32_DEV)
+HardwareSerial Serial2(2);
+DFRobot_BC20_Serial myBC20(&Serial2);//ESP32HardwareSerial
+#else
+DFRobot_BC20_Serial myBC20(&Serial1);//others
+#endif
+/******************SoftwareSerial******************/
+#elif defined(USE_SSERIAL)
 /*
-   Connect Instructions
-   esp32      |               MEGA Series    |    Module(BC20)
-   IO17       |               D16(RX)        |       D/T
-   IO16       |               D17(TX)        |       C/R
-   GND        |               GND            |       GND
-   5V(USB) or 3V3(battery)  | 5V or 3V3      |       VCC
+ *  Connect Instructions
+ *      UNO     |    Module(BC20)
+ *    PIN_RXD   |       D/T
+ *    PIN_TXD   |       C/R
+ *      GND     |       GND
+ *   5V or 3V3  |       VCC
 */
-
-/*SoftwareSerial*/
-//#define PIN_TXD   3
-//#define PIN_RXD   4
-//SoftwareSerial ss(PIN_TXD,PIN_RXD);
-//DFRobot_BC20_SW_Serial myBC20(&ss);
-/*
-   Connect Instructions
-        UNO     |    Module(BC20)
-      PIN_RXD   |       D/T
-      PIN_TXD   |       C/R
-        GND     |       GND
-     5V or 3V3  |       VCC
-*/
+#define PIN_TXD   3
+#define PIN_RXD   4
+SoftwareSerial ss(PIN_TXD,PIN_RXD);
+DFRobot_BC20_SW_Serial myBC20(&ss);
+#endif
 
 void ConnectCloud(){
     while(!myBC20.connected()){
@@ -100,7 +115,6 @@ void setup(){
         myBC20.control_LED("LED_G_OFF"); 
         delay(10);        
     }
-	
     Serial.println("Waitting for access ...");
     while(myBC20.getGATT() == 0){
         Serial.print(".");
@@ -119,9 +133,8 @@ void setup(){
     ConnectCloud();
     Serial.println("Connect Cloud success!");	
 }
-
-void loop(){	
-	delay(5000);
-	Serial.println("send message to cloud...");
-	myBC20.publish(pubTopic,"hello");		
+void loop(){
+    delay(5000);
+    Serial.println("send message to cloud...");
+    myBC20.publish(pubTopic,"hello");		
 }
