@@ -11,7 +11,6 @@ Arduino libraries are provided for satellite messaging and iot communication thr
 * [Installation](#installation)
 * [Methods](#methods)
 * [Compatibility](#compatibility)
-* [History](#history)
 * [Credits](#credits)
 
 <snippet>
@@ -26,12 +25,12 @@ To use this library, download the zip file and extract it into a folder called D
 ```C++
 
   /**
-   * @Used to open BC20 with a bool return value.  
-   */  
+    * @Used to open BC20 with a bool return value.  
+    */  
 bool powerOn(void);  
 
 /*
-    *@Used to check for the existence of a NB card with a bool return value
+    * @Used to check for the existence of a NB card with a bool return value
     */  
   bool  checkNBCard(void);
   
@@ -43,11 +42,11 @@ bool powerOn(void);
 /*
     * @Used to configure the sleep mode of bc20, the parameter is an enumeration type  
     */
-    typedef enum {
-      eSleepMode_Disable,   
-      eSleepMode_DeepSleep  
-      eSleepMode_Light   
-    } eSleepMode_t;
+  typedef enum {
+    eSleepMode_Disable,   
+    eSleepMode_DeepSleep  
+    eSleepMode_Light   
+  }eSleepMode_t;
   bool  configSleepMode(eSleepMode_t mode);
 /*
     * @Obtain extended signal quality   
