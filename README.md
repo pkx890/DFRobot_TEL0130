@@ -18,8 +18,9 @@ Arduino libraries are provided for satellite messaging and iot communication thr
 <content>
 ##Installation
 To use this library, download the zip file and extract it into a folder called DFRobot_TEL0130.
-##Methods 
-  
+
+## Methods
+
 ```C++
 
   /**
