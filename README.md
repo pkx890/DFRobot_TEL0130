@@ -28,7 +28,7 @@ To use this library, download the zip file and extract it into a folder called D
   /**
    * @Used to open BC20 with a bool return value.  
    */  
-`bool powerOn(void);`  
+bool powerOn(void);  
 
 /*
     *@Used to check for the existence of a NB card with a bool return value
@@ -135,7 +135,7 @@ To use this library, download the zip file and extract it into a folder called D
 MCU                | Work Well | Work Wrong | Untested  | Remarks
 ------------------ | :----------: | :----------: | :---------: | -----
 FireBeetle-ESP32  |      √       |             |            | 
-FireBeetle-ESP8266  |      √       |             |            | 
+ATMEGA2560  |      √       |             |            | 
 Arduino uno |       √      |             |            | 
   
 ## Credits
