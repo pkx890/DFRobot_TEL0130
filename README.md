@@ -125,9 +125,9 @@ To use this library, download the zip file and extract it into a folder called D
 */
   void                getSQ(void);
 ```
-
+  
 ## Compatibility
-
+  
 MCU                | Work Well | Work Wrong | Untested  | Remarks
 ------------------ | :----------: | :----------: | :---------: | -----
 FireBeetle-ESP32  |      √       |             |            | 
