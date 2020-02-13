@@ -20,7 +20,7 @@ and iot communication through MQTT
 ##Installation
 To use this library, download the zip file and extract it into a folder called DFRobot_TEL0130.
 ##Methods 
-```C++
+```
   /**
    * @Used to open BC20 with a bool return value.  
    */  
