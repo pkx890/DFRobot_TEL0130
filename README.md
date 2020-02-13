@@ -124,8 +124,10 @@ To use this library, download the zip file and extract it into a folder called D
     * @Used to obtain the strength of the current network signal
 */
   void                getSQ(void);
+  
 ```   
 ## Compatibility 
+
 MCU                | Work Well | Work Wrong | Untested  | Remarks
 ------------------ | :----------: | :----------: | :---------: | -----
 FireBeetle-ESP32  |      √       |             |            | 
