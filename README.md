@@ -47,6 +47,7 @@ To use this library, download the zip file and extract it into a folder called D
     eSleepMode_DeepSleep  
     eSleepMode_Light   
   }eSleepMode_t;
+  
   bool  configSleepMode(eSleepMode_t mode);
   
   /*
