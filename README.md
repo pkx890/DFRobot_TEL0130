@@ -20,6 +20,7 @@ and iot communication through MQTT
 ##Installation
 To use this library, download the zip file and extract it into a folder called DFRobot_TEL0130.
 ##Methods 
+  
 ```
   /**
    * @Used to open BC20 with a bool return value.  
@@ -123,16 +124,16 @@ To use this library, download the zip file and extract it into a folder called D
 /*
     * @Used to obtain the strength of the current network signal
 */
-  void                getSQ(void);
-  
-```   
-## Compatibility 
+  void                getSQ(void);  
+```  
+
+## Compatibility  
 
 MCU                | Work Well | Work Wrong | Untested  | Remarks
 ------------------ | :----------: | :----------: | :---------: | -----
 FireBeetle-ESP32  |      √       |             |            | 
 FireBeetle-ESP8266  |      √       |             |            | 
 Arduino uno |       √      |             |            | 
-
-##Credits
+  
+## Credits
 Written by Peng Kaixing(kaixing.peng@dfrobot.com), 2020. (Welcome to our website)
