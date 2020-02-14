@@ -1469,7 +1469,7 @@ bool DFRobot_BC20 :: getQGNSSRD(char* cmd){
 			{
 				free(data);
 				data=NULL;
-				break;
+				return false;
 			}				
 			t_addr =(char*)malloc(strlen((char*)data)+1);
 			if(t_addr==NULL)
@@ -1520,13 +1520,13 @@ bool DFRobot_BC20 :: getQGNSSRD(char* cmd){
             //NumSAT = atoi(GetSthfrontString(",",tempStr));//可见卫星数
 			tempdata=GetSthfrontString(",",tempStr);
 			NumSAT = atoi(tempdata);			
-            tempStr = removeSthString(",",tempStr);			
-            if(TotSEN > 0){
+            tempStr = removeSthString(",",tempStr); 			       
+			if(TotSEN > 0){
                 if(NumSEN == 1){
                     sSAT.NUM += NumSAT;
 					if(Flag==1)
 					{
-						sSAT.NUM=3;
+						sSAT.NUM=6;
 					}
 #ifdef ARDUINO_AVR_UNO
 					if(sSAT.NUM>11)
@@ -1541,6 +1541,11 @@ bool DFRobot_BC20 :: getQGNSSRD(char* cmd){
                     StartNum += (NumSAT-((NumSEN-1)*4));
                 }
             }
+			if(ret1!=NULL)
+			{
+				free(ret1);
+				ret1=NULL;				
+			}			
 			free(t_addr);
 			t_addr=NULL;			
 		}
@@ -3192,9 +3197,8 @@ if((num>5)&&(flag==0))
 			{
 				do{
 				tempInt = tempData.indexOf("\r\n");
-				if(tempInt != -1){					
+				if(tempInt != -1){		
 					cuappEnqueue((uint8_t *)((tempData.substring(0,tempInt+2)).c_str()),tempInt+2,tempNum);						
-					//tempData = tempData.substring(tempInt + 2, tempData.length());
 					tempNum ++;
 					if((tempData.indexOf("OK\r\n") != -1))					
 						flag=1;											
@@ -3285,7 +3289,7 @@ void DFRobot_BC20_SW_Serial::receviceATCMD(uint32_t timeout){
     String tempData="";
 #ifdef ARDUINO_AVR_UNO	
 	Flag=1;
-	uint8_t counter=3;
+	uint8_t counter=5;
 #else
 	uint8_t counter=100;
 #endif
