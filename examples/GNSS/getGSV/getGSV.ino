@@ -73,56 +73,69 @@ DFRobot_BC20_SW_Serial myBC20(&ss);
 #endif
 
 void Display_Satellite_Information(){	
-    Serial.print(sSAT.NUM);
-    Serial.println(" in view.");
-    // Satellite PRN number
-    Serial.print("PRN\t");
-    // Elevation angle, unit in degrees
-    Serial.print("Elev(deg)\t");
-    // Azimuth angle, unit in degrees
-    Serial.print("Azim(deg)\t");
-    // Signal Noise Ratio, unit in dBHz
-    Serial.print("SNR(dBHz)\t");
-    Serial.println("SYS");
-    for(uint8_t i = 0; i <sSAT.NUM; i++){
-        Serial.print(sSAT.data[i].PRN());
-        Serial.print("\t");
-        Serial.print(sSAT.data[i].Elev());
-        Serial.print("\t\t");
-        Serial.print(sSAT.data[i].Azim());
-        Serial.print("\t\t");
-        Serial.print(sSAT.data[i].SNR());
-        Serial.print("\t\t");
-        Serial.println(sSAT.data[i].SYS());
-    }
+  Serial.print(sSAT.NUM);
+  Serial.println(" in view.");
+/**
+ * Satellite PRN number
+ */
+  Serial.print("PRN\t");
+/**
+ * Elevation angle, unit in degrees
+ */
+  Serial.print("Elev(deg)\t");
+/**
+ * Azimuth angle, unit in degrees
+ */
+  Serial.print("Azim(deg)\t");
+/**
+ * Signal Noise Ratio, unit in dBHz
+ */
+  Serial.print("SNR(dBHz)\t");
+  Serial.println("SYS");
+  for(uint8_t i = 0; i <sSAT.NUM; i++){
+    Serial.print(sSAT.data[i].PRN());
+    Serial.print("\t");
+    Serial.print(sSAT.data[i].Elev());
+    Serial.print("\t\t");
+    Serial.print(sSAT.data[i].Azim());
+    Serial.print("\t\t");
+    Serial.print(sSAT.data[i].SNR());
+    Serial.print("\t\t");
+    Serial.println(sSAT.data[i].SYS());
+  }
 }
 
 void setup(){
-    Serial.begin(115200);
-    Serial.print("Starting the BC20.Please wait. . . ");
-    while(!myBC20.powerOn()){
-        delay(1000);
-        myBC20.control_LED("LED_R_ON");
-        delay(10);   
-        myBC20.control_LED("LED_R_OFF"); 
-        delay(10);        
-        Serial.print(".");
-    }
-    Serial.println("BC20 started successfully !");
-    if(myBC20.getQGNSSC() == OFF){
-        myBC20.LED_flash("Y");
-        Serial.println("open QGNSSC");
-        myBC20.setQGNSSC(ON);
-    }
+  Serial.begin(115200);
+  Serial.print("Starting the BC20.Please wait. . . ");
+  while(!myBC20.powerOn()){
+    delay(1000);
+    myBC20.controlLED("LED_R_ON");
+    delay(10);   
+    myBC20.controlLED("LED_R_OFF"); 
+    delay(10);        
+    Serial.print(".");
+  }
+  Serial.println("BC20 started successfully !");
+  
+/**
+ * Used for module power control. If the return value is 1, the module is in the state of power supply; 
+ * if the return value is 0, the module is in the state of power loss    
+ */
+  if(myBC20.getQGNSSC() == OFF){
+    myBC20.LEDFlash("Y");
+    Serial.println("open QGNSSC");
+    myBC20.setQGNSSC(ON);
+  }
 }
 
 void loop(){
-    delay(5000);
-    myBC20.control_LED("LED_B_ON");
-    delay(100);
-    myBC20.control_LED("LED_B_OFF");
-    delay(100);		
-    myBC20.getQGNSSRD(NMEA_GSV);
-    Display_Satellite_Information();
-    myBC20.clearGPS();
+  delay(5000);
+  myBC20.controlLED("LED_B_ON");
+  delay(100);
+  myBC20.controlLED("LED_B_OFF");
+  delay(100);
+  myBC20.getQGNSSRD(NMEA_GSV);
+  Display_Satellite_Information();
+  myBC20.clearGPS();
 }

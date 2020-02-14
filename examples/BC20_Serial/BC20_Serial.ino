@@ -108,21 +108,26 @@ void setup(){
   while(!myBC20.powerOn()){
     delay(1000);
     Serial.print(".");
-    myBC20.control_LED("LED_R_ON");
+    myBC20.controlLED("LED_R_ON");
     delay(500);   
-    myBC20.control_LED("LED_R_OFF"); 
+    myBC20.controlLED("LED_R_OFF"); 
     delay(500); 
   }
   Serial.println("BC20 started successfully !");
   myBC20.configSleepMode(eSleepMode_Disable);
-  //Deep Sleep Mode is automatically enable every time upon power up.
-  //When this mode is entered, BC20 will not respond any AT commands from ESP32
-  //myBC20.ConfigSleepMode(eSleepMode_Disable);
-  //Each AT command should begin with "AT" or "at" and end with "Carriage return".
-  //The commands can be upper-case or lower-case. ex. "AT+CSQ" or "at+csq".
-  Serial.println("Enter AT commands:");
+/**  
+  * Deep Sleep Mode is automatically enable every time upon power up.
+  * When this mode is entered, BC20 will not respond any AT commands from ESP32
+  * myBC20.ConfigSleepMode(eSleepMode_Disable);
+  * Each AT command should begin with "AT" or "at" and end with "Carriage return".
+  * The commands can be upper-case or lower-case. ex. "AT+CSQ" or "at+csq".
+  * Serial.println("Enter AT commands:");
+ */
 }
 void loop(){
+/**
+ * Receive data when it comes in and send it in characters when it needs to be sent
+ */
   if(Serial.available()){
     myBC20.sendATCMDBychar((char)Serial.read());
   }

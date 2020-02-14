@@ -91,6 +91,9 @@ DFRobot_BC20_SW_Serial myBC20(&ss);
 
 DFRobot_Iot myDevice;
 
+/*
+ *The format used to process the received data
+ */
 void callback(char * topic, byte * payload, unsigned int len){
   Serial.print("Recevice [");
   Serial.print(topic);
@@ -100,6 +103,7 @@ void callback(char * topic, byte * payload, unsigned int len){
   }
   Serial.println();
 }
+
 void ConnectCloud(){
   while(!myBC20.connected()){
     Serial.print("Attempting MQTT connection...");
@@ -110,37 +114,52 @@ void ConnectCloud(){
       myBC20.getQMTCONN();
     }
   }
+  myBC20.configSleepMode(eSleepMode_Disable);
+  while(!myBC20.subTopic('0','1',subTopic,'0')){
+    Serial.println("subTopicing...");
+    delay(500);
+  }  
 }
 void setup(){
   Serial.begin(115200);
-  Serial.print("Starting the BC20.Please wait. . . ");
+  Serial.println("Starting the BC20.Please wait. . . ");
   while(!myBC20.powerOn()){
     delay(1000);
-    myBC20.control_LED("LED_R_ON");
+    myBC20.controlLED("LED_R_ON");
     delay(10);   
-    myBC20.control_LED("LED_R_OFF"); 
+    myBC20.controlLED("LED_R_OFF"); 
     delay(10);    
     Serial.print(".");
   }
   Serial.println("BC20 started successfully !");
+  
   while(!myBC20.checkNBCard()){
     Serial.println("Please insert the NB card !");
     delay(1000);
-    myBC20.control_LED("LED_G_ON");
+    myBC20.controlLED("LED_G_ON");
     delay(10);   
-    myBC20.control_LED("LED_G_OFF"); 
+    myBC20.controlLED("LED_G_OFF"); 
     delay(10);    
   }
   Serial.println("Waitting for access ...");
+  
+/**
+ * For network connection, return 1 on success, 0 on failure
+ */
   while(myBC20.getGATT() == 0){
     Serial.print(".");
     delay(1000);
-    myBC20.control_LED("LED_B_ON");
+    myBC20.controlLED("LED_B_ON");
     delay(10);   
-    myBC20.control_LED("LED_B_OFF"); 
+    myBC20.controlLED("LED_B_OFF"); 
     delay(10);    
   }
+  
   myDevice.init(ALIYUN_SERVER,ProductKey,ClientId,DeviceName,DeviceSecret);
+
+/**
+ * Use to connect to Internet of things sites
+ */  
   myBC20.setServer(myDevice._mqttServer,PORT);
   myBC20.setCallback(callback);
   ConnectCloud();

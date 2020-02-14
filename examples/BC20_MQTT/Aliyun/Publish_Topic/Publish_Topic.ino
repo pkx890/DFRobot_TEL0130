@@ -72,33 +72,30 @@ DFRobot_BC20_SW_Serial myBC20(&ss);
 #endif
 
 DFRobot_Iot myDevice;
-/*Configure device certificate information*/
+/*
+ *Configure device certificate information
+ */
 const char* ProductKey = "a1QAq4WoEou";
 const char* ClientId = "Tinker_A";/*Custom id*/
 const char* DeviceName = "YEYMxzpGI3TlwvCRHWtQ";
 const char* DeviceSecret = "9FYJoMXlsxXiyO6wNH3z7gJ0QKPrmWAn";
 
-/*Configure the domain name and port number*/
+/*
+ *Configure the domain name and port number
+ */
 const char* ALIYUN_SERVER = "iot-as-mqtt.cn-shanghai.aliyuncs.com";
 const char* PORT = "1883";
 
-/*Product identifier that needs to be operated*/
+/*
+ *Product identifier that needs to be operated
+ */
 const char* Identifier = "your_Identifier";
 
-/*TOPIC that need to be published and subscribed*/
+/*
+ *TOPIC that need to be published and subscribed
+ */
 const char* subTopic = "your_sub_Topic";//****set
 const char* pubTopic = "your_pub_Topic";//******post
-
-
-void callback(char * topic, byte * payload, unsigned int len){
-  Serial.print("Recevice [");
-  Serial.print(topic);
-  Serial.print("] ");
-  for (int i = 0; i < len; i++){
-    Serial.print((char)payload[i]);
-  }
-  Serial.println();
-}
 
 void ConnectCloud(){
   while(!myBC20.connected()){
@@ -106,47 +103,64 @@ void ConnectCloud(){
     if(myBC20.connect(myDevice._clientId, myDevice._username, myDevice._password)){
       Serial.println("Connect Server OK");
     }else{
+/**
+ * Used to detect the connection between the device and the server
+ */
       if(myBC20.getQMTCONN())
       break;
     }
   }
 }
+
 void setup(){
   Serial.begin(115200);
-    Serial.println("Starting the BC20.Please wait. . . ");
-    while(!myBC20.powerOn()){
+  Serial.println("Starting the BC20.Please wait. . . ");
+  while(!myBC20.powerOn()){
     delay(1000);
-    myBC20.control_LED("LED_R_ON");
+    myBC20.controlLED("LED_R_ON");
     delay(10);   
-    myBC20.control_LED("LED_R_OFF"); 
+    myBC20.controlLED("LED_R_OFF"); 
     delay(10);    
     Serial.print(".");
   }
   Serial.println("BC20 started successfully !");
+  
   while(!myBC20.checkNBCard()){
     Serial.println("Please insert the NB card !");
     delay(1000);
-    myBC20.control_LED("LED_G_ON");
+    myBC20.controlLED("LED_G_ON");
     delay(10);   
-    myBC20.control_LED("LED_G_OFF"); 
+    myBC20.controlLED("LED_G_OFF"); 
     delay(10);    
   }
   Serial.println("Waitting for access ...");
+  
+/**
+ * For network connection, return 1 on success, 0 on failure
+ */
   while(myBC20.getGATT() == 0){
     Serial.print(".");
     delay(1000);
-    myBC20.control_LED("LED_B_ON");
+    myBC20.controlLED("LED_B_ON");
     delay(10);   
-    myBC20.control_LED("LED_B_OFF"); 
+    myBC20.controlLED("LED_B_OFF"); 
     delay(10);    
   }
+  
   myDevice.init(ALIYUN_SERVER,ProductKey,ClientId,DeviceName,DeviceSecret);
+
+/**
+ * Use to connect to Internet of things sites
+ */  
   myBC20.setServer(myDevice._mqttServer,PORT);
-  myBC20.setCallback(callback);
   ConnectCloud();
 }
 
 void loop(){
   delay(10000);
+/**
+ * Used to send a message to the server, parameter description: the first parameter is used to specify the topic,   
+ * the second parameter is the specific data to be sent
+ */  
   myBC20.publish(pubTopic,"Hello test");
 }

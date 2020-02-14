@@ -73,89 +73,116 @@ void setup(){
   Serial.print("Starting the BC20.Please wait. . . ");
   while(!myBC20.powerOn()){
     delay(1000);
-    myBC20.control_LED("LED_R_ON");
+    myBC20.controlLED("LED_R_ON");
     delay(10);   
-    myBC20.control_LED("LED_R_OFF"); 
+    myBC20.controlLED("LED_R_OFF"); 
     delay(10);     
     Serial.print(".");
   }
   Serial.println("BC20 started successfully !");
+  
   myBC20.configSleepMode(eSleepMode_Disable);
+  
   Serial.println("check OK");
   if(myBC20.getQGNSSC() == OFF){
-    myBC20.LED_flash("Y");
-	myBC20.setQGNSSC(ON);
+    myBC20.LEDFlash("Y");
+    myBC20.setQGNSSC(ON);
   }
   Serial.println("open QGNSSC");  
 }
 
 void loop(){
   delay(5000);
-  myBC20.control_LED("LED_C_ON");
+  myBC20.controlLED("LED_C_ON");
   delay(100);
-  myBC20.control_LED("LED_C_OFF");
+  myBC20.controlLED("LED_C_OFF");
   delay(100);
   myBC20.getQGNSSRD(NMEA_GGA);
-  // UTC time, format: hhmmss.ss, ex. 162436.54 => 16:24:36.54
-  // h - hours
-  // m - minutes
-  // s - seconds
+/*
+ * UTC time, format: hhmmss.ss, ex. 162436.54 => 16:24:36.54
+ * h - hours
+ * m - minutes
+ * s - seconds
+ */
   Serial.print("UTC Time: ");
   Serial.println(sGGA.UTC_Time());
 
-  // Latitude, format: ddmm.mmmmm, ex. 3150.7820 => 31deg 50.7820min
-  // d - degrees
-  // m - minutes
+/*
+ * Latitude, format: ddmm.mmmmm, ex. 3150.7820 => 31deg 50.7820min
+ * d - degrees
+ * m - minutes
+ */
   Serial.print("Latitude: ");
   Serial.print(sGGA.LatitudeVal());
   Serial.print(" ");
-  // Latitude north or south
-  // N - North
-  // S - North
+/*
+ * Latitude north or south
+ * N - North
+ * S - North
+ */
   Serial.println(sGGA.LatitudeDir());
 
-  // Longitude, format: dddmm.mmmmm, ex. 12135.6794 => 121deg 35.6794min
-  // d - degrees
-  // m - minutes
+/*
+ * Longitude, format: dddmm.mmmmm, ex. 12135.6794 => 121deg 35.6794min
+ * d - degrees
+ * m - minutes
+ */
   Serial.print("Longitude: ");
   Serial.print(sGGA.LongitudeVal());
   Serial.print(" ");
-  // Longitude wast or west
-  // E - East
-  // W - West
+
+/*
+ * Longitude wast or west
+ * E - East
+ * W - West
+ */
   Serial.println(sGGA.LongitudeDir());
 
-  // Fix status
-  // 0 - degrees
-  // 1 - GPS fix 
-  // 2 - DGPS fix
+/*
+ * Fix status
+ * 0 - degrees
+ * 1 - GPS fix 
+ * 2 - DGPS fix
+ */
   Serial.print("Fix Status: ");
   Serial.println(sGGA.Status());
 
-  // Number of satellites being used (0 - 24)
+/*
+ * Number of satellites being used (0 - 24)
+ */
   Serial.print("StatelliteNum: ");
   Serial.print(sGGA.StatelliteNum());
   Serial.println(" in Used");
 
-  // HDOP, Horizontal Dilution of Precision
+/*
+ * HDOP, Horizontal Dilution of Precision
+ */
   Serial.print("HDOP = ");
   Serial.println(sGGA.HDOP());
 
-  // Altitude, Altitude according to WGS84 ellipsoid, unit in meters
+/*
+ * Altitude, Altitude according to WGS84 ellipsoid, unit in meters
+ */
   Serial.print("Altitude: ");
   Serial.print(sGGA.Altitude());
   Serial.println(" m");
 
-  //GeoID Separation, height of GeoID (means sea level) above WGS84 ellipsoid, unit in meters
+/*
+ * GeoID Separation, height of GeoID (means sea level) above WGS84 ellipsoid, unit in meters
+ */
   Serial.print("GeoID Separation: ");
   Serial.print(sGGA.GeoID_Separation());
   Serial.println(" m");
     
-  //DGPS Age, age of DGPS data, empty if DGPS is not used, unit in seconds
+/*
+ * DGPS Age, age of DGPS data, empty if DGPS is not used, unit in seconds
+ */
   Serial.print("DGPS Age: ");
   Serial.println(sGGA.DGPS_Age());
 
-  //DGPS Station ID, DGPS station ID, empty if DGPS is not used
+/*
+ * DGPS Station ID, DGPS station ID, empty if DGPS is not used
+ */
   Serial.print("DGPS Station ID: ");
   Serial.println(sGGA.DGPS_StationID());
   Serial.println();

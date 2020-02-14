@@ -2385,7 +2385,7 @@ bool DFRobot_BC20::configSleepMode(eSleepMode_t mode){
     return setQSCLK(mode);
 }
 
-bool DFRobot_BC20::BC20WakeUp(){
+bool DFRobot_BC20::BC20Wakeup(){
     flushBC20Serial();
 	sendATCMD("WakeUp");
     return(checkBC20());
@@ -2741,7 +2741,7 @@ void DFRobot_BC20::setPSMCallback(void (*call)(void)){
     this->PSMcallback = call;
 }
 
-void DFRobot_BC20::control_LED(String str)
+void DFRobot_BC20::controlLED(String str)
 {
 	sendATCMD(str);
 }
@@ -2750,13 +2750,13 @@ void DFRobot_BC20::LED_ON()
 {
 	String str;
 	str="LED_"+(this->color)+"_ON";
-	control_LED(str);
+	controlLED(str);
 }
 void DFRobot_BC20::LED_OFF()
 {
 	String str;
 	str="LED_"+(this->color)+"_OFF";
-	control_LED(str);
+	controlLED(str);
 }
 void DFRobot_BC20::changeColor(uint8_t newColor)
 {
@@ -2788,27 +2788,27 @@ void DFRobot_BC20::changeColor(uint8_t newColor)
 	}
 	return;	
 }
-void DFRobot_BC20::LED_flash(String Color)
+void DFRobot_BC20::LEDFlash(String Color)
 {
 	String str1;
 	String str2;
 	str1="LED_"+Color+"_ON";
 	str2="LED_"+Color+"_OFF";
-	control_LED(str1);
+	controlLED(str1);
 	delay(10);
-	control_LED(str2);
+	controlLED(str2);
 }
 
 void DFRobot_BC20::stmLowpower()
 {
-	control_LED("LED_G_ON");
+	controlLED("LED_G_ON");
 	delay(10);
-	control_LED("LED_G_OFF");
+	controlLED("LED_G_OFF");
 	delay(10);
 	sendATCMD("DSLEEP");
 	delay(10);	
 }
-bool DFRobot_BC20::stmAwake(uint8_t Awake_Pin)
+bool DFRobot_BC20::stmWakeup(uint8_t Awake_Pin)
 {
 	pinMode(Awake_Pin,OUTPUT);
 	digitalWrite(Awake_Pin,LOW);

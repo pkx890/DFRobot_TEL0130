@@ -68,99 +68,133 @@ DFRobot_BC20_SW_Serial myBC20(&ss);
 #endif
 
 void setup(){
-    Serial.begin(115200);
-    Serial.print("Starting the BC20.Please wait. . . ");
-    while(!myBC20.powerOn()){
-        delay(1000);
-        myBC20.control_LED("LED_R_ON");
-        delay(10);   
-        myBC20.control_LED("LED_R_OFF"); 
-        delay(10);        
-        Serial.print(".");
-    }
-    Serial.println("BC20 started successfully !");
-    Serial.println("check OK");
-    if(myBC20.getQGNSSC() == OFF){
-        myBC20.LED_flash("Y");
-        Serial.println("open QGNSSC");
-        myBC20.setQGNSSC(ON);
-    }
+  Serial.begin(115200);
+  Serial.print("Starting the BC20.Please wait. . . ");
+  while(!myBC20.powerOn()){
+    delay(1000);
+    myBC20.controlLED("LED_R_ON");
+    delay(10);   
+    myBC20.controlLED("LED_R_OFF"); 
+    delay(10);        
+    Serial.print(".");
+  }
+  Serial.println("BC20 started successfully !");
+  Serial.println("check OK");
+
+/**
+ * Used for module power control. If the return value is 1, the module is in the state of power supply; 
+ * if the return value is 0, the module is in the state of power loss    
+ */
+  if(myBC20.getQGNSSC() == OFF){
+    myBC20.LEDFlash("Y");
+    Serial.println("open QGNSSC");
+    myBC20.setQGNSSC(ON);
+  }
 }
 
 void loop(){
-    delay(3000);
-    myBC20.control_LED("LED_B_ON");
-    delay(100);
-    myBC20.control_LED("LED_B_OFF");
-    delay(100);	
-    myBC20.getQGNSSRD(NMEA_RMC);
-    
-    // UTC Date, format: ddmmyy, ex. 290519 = 2019/05/29
-    Serial.print("UTC Date: ");
-    Serial.println(sRMC.UTC_Date());
-    // UTC time, format: hhmmss.ss, ex. 162436.54 = 16:24:36.54
-    // h - hours
-    // m - minutes
-    // s - seconds
-    Serial.print("UTC Time: ");
-    Serial.println(sRMC.UTC_Time());
-    
-    // DataStatus
-    // V - Invalid
-    // A - Valid
-    Serial.print("Data Status: ");
-    Serial.println(sRMC.DataStatus());
-    
-    // Latitude, format: ddmm.mmmmm, ex. 3150.7820 => 31deg 50.7820min
-    // d - degrees
-    // m - minutes
-    Serial.print("Latitude: ");
-    Serial.print(sRMC.LatitudeVal());
-    Serial.print(" ");
-    // Latitude north or south
-    // N - North
-    // S - South
-    Serial.println(sRMC.LatitudeDir());
-
-    // Longitude, format: dddmm.mmmmm, ex. 12135.6794 => 121deg 35.6794min
-    // d - degrees
-    // m - minutes
-    Serial.print("Longitude: ");
-    Serial.print(sRMC.LongitudeVal());
-    Serial.print(" ");
-    // Longitude east or west
-    // E - East
-    // W - West
-    Serial.println(sRMC.LongitudeDir());
-    // Ground Speed, speed over ground, unit in knots
-    Serial.print("Ground Speed: ");
-    Serial.print(sRMC.GroundSpeed());
-    Serial.println(" knots");
-
-    // Ground Heading, heading over ground, unit in degrees
-    Serial.print("Ground Heading: ");
-    Serial.println(sRMC.GroundHeading());
-
-    // Magnetic Declination, unit in degrees
-    Serial.print("Magnetic Declination: ");
-    Serial.println(sRMC.MagDeclination());
-    
-    // Magnetic Declination Direction, Magnetic declination E/W indicator
-    Serial.print("Magnetic Declination Direction: ");
-    Serial.println(sRMC.MagDeclinationDir());
-
-    // Positioning Mode
-    // N - No fix
-    // A - Autonomous GPS fix
-    // D - Differential GPS fix
-    Serial.print("Positioning Mode: ");
-    Serial.println(sRMC.PositioningMode());
-    
-    // Navigation Status
-    // V - Invalid
-    Serial.print("Navigation Status: ");
-    Serial.println(sRMC.NaviStatus());
-    Serial.println();
-    Serial.println();
-    myBC20.clearGPS();
+  delay(3000);
+  myBC20.controlLED("LED_B_ON");
+  delay(100);
+  myBC20.controlLED("LED_B_OFF");
+  delay(100);	
+  myBC20.getQGNSSRD(NMEA_RMC);
+  
+/*
+ * UTC Date, format: ddmmyy, ex. 290519 = 2019/05/29
+ */
+  Serial.print("UTC Date: ");
+  Serial.println(sRMC.UTC_Date());
+  
+/*
+ * UTC time, format: hhmmss.ss, ex. 162436.54 = 16:24:36.54
+ * h - hours
+ * m - minutes
+ * s - seconds
+ */
+  Serial.print("UTC Time: ");
+  Serial.println(sRMC.UTC_Time());
+  
+/*
+ * DataStatus
+ * V - Invalid
+ * A - Valid
+ */
+  Serial.print("Data Status: ");
+  Serial.println(sRMC.DataStatus());
+  
+/*
+ * Latitude, format: ddmm.mmmmm, ex. 3150.7820 => 31deg 50.7820min
+ * d - degrees
+ * m - minutes
+ */
+  Serial.print("Latitude: ");
+  Serial.print(sRMC.LatitudeVal());
+  Serial.print(" ");
+/*
+ * Latitude north or south
+ * N - North
+ * S - South
+ */
+  Serial.println(sRMC.LatitudeDir());
+  
+/*
+ * Longitude, format: dddmm.mmmmm, ex. 12135.6794 => 121deg 35.6794min
+ * d - degrees
+ * m - minutes
+ */
+  Serial.print("Longitude: ");
+  Serial.print(sRMC.LongitudeVal());
+  Serial.print(" ");
+  
+/*
+ * Longitude east or west
+ * E - East
+ * W - West
+ */
+  Serial.println(sRMC.LongitudeDir());
+  
+/*
+ * Ground Speed, speed over ground, unit in knots
+ */
+  Serial.print("Ground Speed: ");
+  Serial.print(sRMC.GroundSpeed());
+  Serial.println(" knots");
+  
+/* 
+ * Ground Heading, heading over ground, unit in degrees 
+ */
+  Serial.print("Ground Heading: ");
+  Serial.println(sRMC.GroundHeading());
+  
+/*
+ * Magnetic Declination, unit in degrees 
+ */
+  Serial.print("Magnetic Declination: ");
+  Serial.println(sRMC.MagDeclination());
+  
+/* 
+ * Magnetic Declination Direction, Magnetic declination E/W indicator 
+ */
+  Serial.print("Magnetic Declination Direction: ");
+  Serial.println(sRMC.MagDeclinationDir());
+  
+/*   
+ * Positioning Mode
+ * N - No fix
+ * A - Autonomous GPS fix
+ * D - Differential GPS fix 
+ */
+  Serial.print("Positioning Mode: ");
+  Serial.println(sRMC.PositioningMode());
+  
+/*
+ * Navigation Status
+ * V - Invalid 
+ */
+  Serial.print("Navigation Status: ");
+  Serial.println(sRMC.NaviStatus());
+  Serial.println();
+  Serial.println();
+  myBC20.clearGPS();
 }

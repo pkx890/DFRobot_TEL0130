@@ -103,32 +103,37 @@ DFRobot_BC20_SW_Serial myBC20(&ss);
 #endif
 
 static void NB_Signal_Fun() {
-  /*
-   * Introduction:
-   *    Turn on the BC20 and automatically connect to the network,
-   *    print the signal strength through the serial port,
-   *    and indicate the signal strength (high, medium, low) by the blinking frequency of the RGB or L indicator.
-   * RGB:
-   *    When NB is connected, the signal strength is indicated by the frequency of the flashing light,
-   *    which divided into three steps:
-   *    Strong signal - fast flash
-   *    Medium signal - slow flash
-   *    Weak signal - burst flash.
-   */
+/*
+ * Introduction:
+ * Turn on the BC20 and automatically connect to the network,
+ * print the signal strength through the serial port,
+ * and indicate the signal strength (high, medium, low) by the blinking frequency of the RGB or L indicator.
+ * RGB:
+ * When NB is connected, the signal strength is indicated by the frequency of the flashing light,
+ * which divided into three steps:
+ * Strong signal - fast flash
+ * Medium signal - slow flash
+ * Weak signal - burst flash.
+ */
   Serial.println("NB-IoT signal detection mode.");
   Serial.println("Long press SET for over 1 sec to start...");
   Serial.print("Starting the BC20. Please wait... ");
   while (!myBC20.powerOn()) {
-    myBC20.LED_flash("R");
+    myBC20.LEDFlash("R");
     Serial.print(".");
   }
   Serial.println("BC20 started successfully !");
+  
   //Check whether a NB-IoT SIM card is available.
   while (!myBC20.checkNBCard()) {
-    myBC20.LED_flash("G");
+    myBC20.LEDFlash("G");
     Serial.println("Please insert the NB SIM card !");
     delay(1000);
   }
+
+/**
+ * Get the serial number of the NB card
+ */
   myBC20.getGSN(IMEI);
   Serial.print("BC20 IMEI: ");
   Serial.println(sGSN.imei);
@@ -138,22 +143,29 @@ static void NB_Signal_Fun() {
   Serial.println((char *)myBC20.getIMI());
   Serial.println("Connecting network ");
 
-  //Check whether it is attached to the network
-  //BC20 will automatically connect and register on network after power on
+/*
+ * Check whether it is attached to the network
+ * BC20 will automatically connect and register on network after power on
+ */
   while (myBC20.getGATT() == 0) {
-    myBC20.LED_flash("B");
+    myBC20.LEDFlash("B");
     Serial.print(".");
     delay(1000);
   }
   Serial.println("Network connected!");
 
   while (1) {
+/**
+ * Used to obtain the strength of the current network signal
+ */
     myBC20.getSQ();
-    //Signal quality RSSI<10, weak signal strength
+
+/**
+ * Signal quality RSSI<10, weak signal strength
+ */
     if(sSQ.rssi < 10 || sSQ.rssi == 99){
-      myBC20.control_LED("LED_W_ON");  
-      myBC20.control_LED("LED_W_OFF"); 
-      //led.BurstFlash();
+      myBC20.controlLED("LED_W_ON");  
+      myBC20.controlLED("LED_W_OFF"); 
       if(sSQ.rssi == 99){
         Serial.println("Signal not detectable");
       }else if(sSQ.rssi ==0) {
@@ -164,26 +176,29 @@ static void NB_Signal_Fun() {
         Serial.println(" dBm Weak");
       }
     }
-    //Signal quality 10<=RSSI<25, medium signal strength
+/*
+ * Signal quality 10<=RSSI<25, medium signal strength
+ */
     else if(sSQ.rssi >= 10  && sSQ.rssi < 25){
-      myBC20.control_LED("LED_W_ON");
-      delay(500);		
-      myBC20.control_LED("LED_W_OFF");
-      delay(500);	
-      //led.SlowFlash();
+      myBC20.controlLED("LED_W_ON");
+      delay(500);
+      myBC20.controlLED("LED_W_OFF");
+      delay(500);
       Serial.print("Signal Strength: ");
       Serial.print((sSQ.rssi - 2) * 2 - 109);
       Serial.println(" dBm Medium");
     }
-    //Signal quality RSSI>=25, strong signal strength
+
+/*
+ * Signal quality RSSI>=25, strong signal strength
+ */
     else if (sSQ.rssi >= 25){
       if(sSQ.rssi < 31){
         for (int i = 0; i < 5 ; i++) {
-          myBC20.control_LED("LED_W_ON");
+          myBC20.controlLED("LED_W_ON");
           delay(100);		
-          myBC20.control_LED("LED_W_OFF");
+          myBC20.controlLED("LED_W_OFF");
           delay(100);
-          //led.FastFlash();
         }
         Serial.print("Signal Strength: ");
         Serial.print((sSQ.rssi - 2) * 2 - 109);

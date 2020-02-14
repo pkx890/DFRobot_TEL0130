@@ -74,14 +74,15 @@ void printLocalTime()
   Serial.print((String)sCLK.Year + "/" + (String)sCLK.Month + "/" + (String)sCLK.Day + " ");
   //Time
   Serial.println((String)sCLK.Hour + ":" + (String)sCLK.Minute + ":" + (String)sCLK.Second);  
+  
   while( myBC20.getCLK()){
     if(sCLK.Year > 2000){
       break;
     }
     Serial.print(".");
-    myBC20.control_LED("LED_P_ON");
+    myBC20.controlLED("LED_P_ON");
     delay(500);
-    myBC20.control_LED("LED_P_OFF");
+    myBC20.controlLED("LED_P_OFF");
     delay(500);    
     delay(1000);
   }  
@@ -94,21 +95,25 @@ void setup()
   while(!myBC20.powerOn()){
     delay(1000);
     Serial.print(".");
-    myBC20.control_LED("LED_G_ON");
+    myBC20.controlLED("LED_G_ON");
     delay(500);
-    myBC20.control_LED("LED_G_OFF");
+    myBC20.controlLED("LED_G_OFF");
     delay(500);    
   }
   Serial.println("BC20 started successfully !");
+  
   while(!myBC20.checkNBCard()){
     Serial.println("Please insert the NB SIM card !");
-    myBC20.control_LED("LED_Y_ON");
+    myBC20.controlLED("LED_Y_ON");
     delay(500);
-    myBC20.control_LED("LED_Y_OFF");
+    myBC20.controlLED("LED_Y_OFF");
     delay(500);    
     delay(1000);
   }
-  //Print IMEI, ICCID and IMSI
+
+/**
+ * Print IMEI, ICCID and IMSI
+ */    
   myBC20.getGSN(IMEI);
   Serial.print("BC20 IMEI: ");
   Serial.println(sGSN.imei);
@@ -117,26 +122,32 @@ void setup()
   Serial.print("SIM card IMSI: ");
   Serial.println((char *)myBC20.getIMI());
 
-  //The module will automatically attempt to connect to the network (mobile station).
-  //Check whether it is connected to the network.  
+/** 
+ * The module will automatically attempt to connect to the network (mobile station).
+ * Check whether it is connected to the network. 
+ */  
   Serial.println("Waitting for access ...");
   while(myBC20.getGATT() == 0){
     Serial.print(".");
-    myBC20.control_LED("LED_G_ON");
+    myBC20.controlLED("LED_G_ON");
     delay(500);
-    myBC20.control_LED("LED_G_OFF");
+    myBC20.controlLED("LED_G_OFF");
     delay(500);    
     delay(1000);
   }
+  
   Serial.println("Waiting for NB time...");
+/**
+ * Get system time
+ */  
   while( myBC20.getCLK()){
     if(sCLK.Year > 2000){
       break;
     }
     Serial.print(".");
-    myBC20.control_LED("LED_P_ON");
+    myBC20.controlLED("LED_P_ON");
     delay(500);
-    myBC20.control_LED("LED_P_OFF");
+    myBC20.controlLED("LED_P_OFF");
     delay(500);    
     delay(1000);
   }

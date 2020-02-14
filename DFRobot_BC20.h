@@ -1124,7 +1124,7 @@ class DFRobot_BC20{
     void setCallback(void (*call)(char*, uint8_t*, unsigned int));
     void loop();
     bool configSleepMode(eSleepMode_t mode);
-    bool BC20WakeUp();
+    bool BC20Wakeup();
     void setTAUTime(uint8_t time, eTAUunit_t unit);
     void setActiveTime(uint8_t time, eAcTunit_t unit);
     bool setPSMMode(ePSM_t status);
@@ -1152,10 +1152,10 @@ class DFRobot_BC20{
 	void LED_ON();
 	void LED_OFF();
 	void changeColor(uint8_t newColor);
-	void control_LED(String str);
-	void LED_flash(String Color);
+	void controlLED(String str);
+	void LEDFlash(String Color);
 	void stmLowpower();
-	bool stmAwake(uint8_t Awake_Pin);
+	bool stmWakeup(uint8_t Awake_Pin);
 	
 	virtual void sendATCMD(char* str) =0;
 	virtual void sendATCMD(String str) =0;

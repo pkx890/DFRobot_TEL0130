@@ -85,22 +85,19 @@ void setup() {
   Serial.println("BC20 started successfully !");
 }
 void loop() {
-/*Available colors:
-  RED 
-  BLUE 
-  GREEN 
-  YELLOW 
-  PURPLE 
-  CYAN 
-  WHITE*/ 	
-  for(int j=0;j<7;j++)
-  {
-    for(int i=0;i<5;i++)
-    {
-       myBC20.LED_ON();//turn on the light,Default is white
-       delay(100);
-       myBC20.LED_OFF();//turn off the light
-       delay(100);
+/**
+ * Available colors:
+ * RED;BLUE; 
+ * GREEN;YELLOW 
+ * PURPLE;CYAN 
+ * WHITE
+ */
+  for(int j=0;j<7;j++){
+    for(int i=0;i<5;i++){
+      myBC20.LED_ON();
+      delay(100);
+      myBC20.LED_OFF();
+      delay(100);
     }
     delay(5000);
     myBC20.changeColor(j);//Change the color to display 

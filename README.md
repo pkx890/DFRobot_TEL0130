@@ -141,12 +141,86 @@ To use this library, download the zip file and extract it into a folder called D
   /**
    * @Used to wake up stm32 by external interrupt with external interrupt pin for output signal
    */
-  bool  stmAwake(uint8_t Awake_Pin);
+  bool  stmWakeup(uint8_t Awake_Pin);
   
   /**
    * @Used to obtain the strength of the current network signal
    */
-  void  getSQ(void);  
+  void  getSQ(void);
+  
+  /**
+   * @Check for data coming in from BC20
+   */
+  void  available(void);
+
+  /**
+   * @Send a single character to bc20
+   */
+  void  sendATCMDBychar(void);
+
+  /**
+   * @Receive the data returned from bc20
+   */
+  void  readData(void);
+
+  /**
+   * @The format used to process the received data
+   */
+  void setCallback(void (*call)(char*, uint8_t*, unsigned int));
+
+  /**
+   * @Used to control the color of LED lights
+   * @Its arguments are strings
+   * @"LED_R_ON"；"LED_R_OFF"；
+   * @"LED_G_ON"；"LED_G_OFF"；
+   * @"LED_B_ON"；"LED_B_OFF"；
+   * @"LED_P_ON"；"LED_P_OFF"；
+   * @"LED_C_ON"；"LED_C_OFF"；
+   * @"LED_W_ON"；"LED_W_OFF"；
+   * @"LED_B_ON"；"LED_Y_OFF"；
+   */
+  void controlLED(String str);
+
+  void changeColor(uint8_t newColor);
+  
+  /**
+   * @Set low power mode
+   */ 
+  bool setPSMMode(ePSM_t status);
+  typedef enum {
+    ePSM_OFF,
+    ePSM_ON,
+    ePSM_OFF_ResetParam
+  } ePSM_t; 
+
+  /**
+   * @Enable/Disable Deep Sleep Wakeup Indication
+   * @Parameters are macroscopically defined
+   * @ON/OFF
+   */ 
+  bool setQATWAKEUP(uint8_t enable);
+  
+  /**
+   * @STM32 enters low power mode
+   */
+  void stmLowpower();
+  
+  /**
+   * @Send the command，The parameters can be String/char/uint8_t
+   * @These parameters are determined by the AT instruction set
+   */
+  void sendATCMD(char* str);
+  
+  void LEDFlash(String Color);
+  
+  /**
+   * @Send the command，The parameters can be String/char/uint8_t
+   * @These parameters are determined by the AT instruction set
+   */
+  bool stmWakeup(uint8_t Awake_Pin);
+  
+  bool BC20Wakeup();
+  
 ```  
 
 ## Compatibility  

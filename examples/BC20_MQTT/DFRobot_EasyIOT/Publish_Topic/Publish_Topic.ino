@@ -84,57 +84,66 @@ DFRobot_BC20_SW_Serial myBC20(&ss);
 #endif
 
 void ConnectCloud(){
-    while(!myBC20.connected()){
-        Serial.print("Attempting MQTT connection...");
-        if(myBC20.connect(Client_ID, Iot_id, Iot_pwd)){          
-            Serial.println("Connect Server OK");
-        }else{
-            if(myBC20.getQMTCONN())
-            break;
-        }
+  while(!myBC20.connected()){
+    Serial.print("Attempting MQTT connection...");
+    if(myBC20.connect(Client_ID, Iot_id, Iot_pwd)){          
+      Serial.println("Connect Server OK");
+    }else{
+/**
+ * Used to detect the connection between the device and the server
+ */
+      if(myBC20.getQMTCONN())
+        break;
     }
+  }
 }
 void setup(){
-    Serial.begin(115200);
-    Serial.print("Starting the BC20.Please wait. . . ");
-    while(!myBC20.powerOn()){
-        delay(1000);
-        myBC20.control_LED("LED_R_ON");
-        delay(10);   
-        myBC20.control_LED("LED_R_OFF"); 
-        delay(10);     
-        Serial.print(".");        
-    }
-   
+  Serial.begin(115200);
+  Serial.print("Starting the BC20.Please wait. . . ");
+  while(!myBC20.powerOn()){
+    delay(1000);
+    myBC20.controlLED("LED_R_ON");
+    delay(10);   
+    myBC20.controlLED("LED_R_OFF"); 
+    delay(10);     
+    Serial.print(".");        
+  }
     Serial.println("BC20 started successfully !");
-    while(!myBC20.checkNBCard()){
-        Serial.println(" hasn't been detected NB card!");
-        delay(1000);
-        myBC20.control_LED("LED_G_ON");
-        delay(10);   
-        myBC20.control_LED("LED_G_OFF"); 
-        delay(10);        
-    }
-    Serial.println("Waitting for access ...");
-    while(myBC20.getGATT() == 0){
-        Serial.print(".");
-        delay(1000);
-        myBC20.control_LED("LED_B_ON");
-        delay(10);   
-        myBC20.control_LED("LED_B_OFF"); 
-        delay(10);        
-    }
 
-    Serial.println("access success ...");
-    Serial.println("Try to connect ...");
-    
-    myBC20.setServer(EasyIot_SERVER,PORT);
-    Serial.println("Server is available!");   
-    ConnectCloud();
-    Serial.println("Connect Cloud success!");	
+  while(!myBC20.checkNBCard()){
+    Serial.println(" hasn't been detected NB card!");
+    delay(1000);
+    myBC20.controlLED("LED_G_ON");
+    delay(10);   
+    myBC20.controlLED("LED_G_OFF"); 
+    delay(10);        
+  }
+  Serial.println("Waitting for access ...");
+
+/**
+ * For network connection, return 1 on success, 0 on failure
+ */ 
+  while(myBC20.getGATT() == 0){
+    Serial.print(".");
+    delay(1000);
+    myBC20.controlLED("LED_B_ON");
+    delay(10);   
+    myBC20.controlLED("LED_B_OFF"); 
+    delay(10);        
+  }
+  Serial.println("access success ...");
+  Serial.println("Try to connect ...");
+
+/**
+ * Use to connect to Internet of things sites
+ */
+  myBC20.setServer(EasyIot_SERVER,PORT);
+  Serial.println("Server is available!");   
+  ConnectCloud();
+  Serial.println("Connect Cloud success!");	
 }
 void loop(){
-    delay(5000);
-    Serial.println("send message to cloud...");
-    myBC20.publish(pubTopic,"hello");		
+  delay(5000);
+  Serial.println("send message to cloud...");
+  myBC20.publish(pubTopic,"hello");
 }

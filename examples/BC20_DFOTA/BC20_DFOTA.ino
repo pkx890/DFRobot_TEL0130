@@ -1,6 +1,6 @@
-/*!
- *@file BC20_DFOTA.ino
- *@  
+/**
+ * @file BC20_DFOTA.ino
+ * @  
  * @ This code demonstrates how to implement a firmware upgrade via OTA.
  *
  * @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
@@ -17,7 +17,7 @@
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
-/*
+/**
  * For general controllers. Communicate by IIC
  * Connect Instructions
  *    Controller     |    Module(BC20)
@@ -36,7 +36,7 @@
 DFRobot_BC20_IIC myBC20(0x33);
 /******************HardwareSerial******************/
 #elif defined(USE_HSERIAL)
-/*
+/**
  * Connect Instructions
  * esp32      |               MEGA Series    |    Module(BC20)
  * IO17       |               D16(RX)        |       D/T
@@ -53,7 +53,7 @@ DFRobot_BC20_Serial myBC20(&Serial1);//others
 #endif
 /******************SoftwareSerial******************/
 #elif defined(USE_SSERIAL)
-/*
+/**
  *  Connect Instructions
  *      UNO     |    Module(BC20)
  *    PIN_RXD   |       D/T
@@ -72,42 +72,71 @@ void setup(){
   Serial.println("Starting the BC20.Please wait. . . ");
   while(!myBC20.powerOn()){
     delay(1000);
-    myBC20.control_LED("LED_R_ON");
+    myBC20.controlLED("LED_R_ON");
     delay(10);   
-    myBC20.control_LED("LED_R_OFF"); 
+    myBC20.controlLED("LED_R_OFF"); 
     delay(10);    
     Serial.print(".");
   }
   Serial.println("BC20 started successfully !");
+  
   while(!myBC20.checkNBCard()){
     Serial.println("Please insert the NB card !");
     delay(1000);
-    myBC20.control_LED("LED_G_ON");
+    myBC20.controlLED("LED_G_ON");
     delay(10);   
-    myBC20.control_LED("LED_G_OFF"); 
+    myBC20.controlLED("LED_G_OFF"); 
     delay(10);    
   }
   Serial.println("Waitting for access ...");
+  
+/**
+ * For network connection, return 1 on success, 0 on failure
+ */  
   while(myBC20.getGATT()==0){
     Serial.print(".");
     delay(1000);
-    myBC20.control_LED("LED_B_ON");
+    myBC20.controlLED("LED_B_ON");
     delay(10);   
-    myBC20.control_LED("LED_B_OFF"); 
+    myBC20.controlLED("LED_B_OFF"); 
     delay(10);    
   }
   Serial.println("");
   Serial.println("access success!");
+  
+/**
+ * Used to configure the sleep mode of bc20, the parameter is an enumeration type  
+ */  
   myBC20.configSleepMode(eSleepMode_Disable);
+  
+/**
+ * Obtain extended signal quality   
+ */    
   myBC20.getESQ();
+  
+/**
+ * Gets the network registration status  
+ */    
   myBC20.getEREG();
+  
+/**
+ * Get the PDP address
+ */  
   myBC20.getGPADDR();
+  
+/**
+ * Get the PDP address
+ */  
   myBC20.setQFOTADL("http://download3.dfrobot.com.cn/nbtest/Update0406.bin");
 }
 void loop(){
+/**
+ * Receive data when it comes in and send it in characters when it needs to be sent
+ */  
   if(Serial.available()){
     myBC20.sendATCMDBychar((char)Serial.read());
   }
+  
   if(myBC20.available()){
     Serial.println(myBC20.readData());
   }
