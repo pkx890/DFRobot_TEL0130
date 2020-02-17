@@ -12,9 +12,26 @@
  * @get from https://www.dfrobot.com
  */
 #include "DFRobot_BC20.h"
-
+#define  RED 0
+#define  BLUE 1
+#define  GREEN 2
+#define  YELLOW 3
+#define  PURPLE 4
+#define  CYAN 5
+#define  WHITE 6
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -70,91 +87,98 @@ DFRobot_BC20_SW_Serial myBC20(&ss);
 
 void setup(){
   Serial.begin(115200);
-  Serial.print("Starting the BC20.Please wait. . . ");
+  Serial.println("Starting the BC20.Please wait. . . ");
+  myBC20.changeColor(RED);
   while(!myBC20.powerOn()){
-    delay(1000);
-    myBC20.controlLED("LED_R_ON");
-    delay(10);   
-    myBC20.controlLED("LED_R_OFF"); 
-    delay(10);    
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);    
     Serial.print(".");
   }
   Serial.println("BC20 started successfully !");
-
-/**
- * Used for module power control. If the return value is 1, the module is in the state of power supply; 
- * if the return value is 0, the module is in the state of power loss    
- */
-  if(myBC20.getQGNSSC() == 0){
-    myBC20.LEDFlash("Y");
-    Serial.println("open QGNSSC");
-    myBC20.setQGNSSC(1);
+  
+  myBC20.configSleepMode(eSleepMode_Disable);
+  
+  Serial.println("check OK");
+  myBC20.changeColor(YELLOW);
+  /**
+   * Used for module power control. If the return value is 1, the module is in the state of power supply; 
+   * if the return value is 0, the module is in the state of power loss    
+   */  
+  if(myBC20.getQGNSSC() == OFF){
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);
+    myBC20.setQGNSSC(ON);
   }
+  Serial.println("open QGNSSC");  
+  myBC20.changeColor(CYAN);
 }
 
 void loop(){
-  delay(3000);
-  myBC20.controlLED("LED_B_ON");
-  delay(100);
-  myBC20.controlLED("LED_B_OFF");
-  delay(100);
+  myBC20.LED_ON();
+  delay(500);
+  myBC20.LED_OFF();
+  delay(5000);
   myBC20.getQGNSSRD(NMEA_GLL);
-  
-/*
- * UTC time, format: hhmmss.ss, ex. 162436.54 => 16:24:36.54
- * h - hours
- * m - minutes
- * s - seconds
- */
+   
+  /*
+   * UTC time, format: hhmmss.ss, ex. 162436.54 => 16:24:36.54
+   * h - hours
+   * m - minutes
+   * s - seconds
+   */
   Serial.print("UTC Time: ");
   Serial.println(sGLL.UTC_Time());
   
-/*
- * Latitude, format: ddmm.mmmmm, ex. 3150.7820 => 31deg 50.7820min
- * d - degrees 
- * m - minutes
- */
+  /*
+   * Latitude, format: ddmm.mmmmm, ex. 3150.7820 => 31deg 50.7820min
+   * d - degrees 
+   * m - minutes
+   */
   Serial.print("Latitude: ");  
   Serial.print(sGLL.LatitudeVal());
   
-/*
- * Latitude north or south
- * N - North
- * S - South
- */
+  /*
+   * Latitude north or south
+   * N - North
+   * S - South
+   */
   Serial.print(" ");
   Serial.println(sGLL.LatitudeDir());
    
-/*
- * Longitude, format: dddmm.mmmmm, ex. 12135.6794 = 121deg 35.6794min
- * d - degrees
- * m - minutes
- */
+  /*
+   * Longitude, format: dddmm.mmmmm, ex. 12135.6794 = 121deg 35.6794min
+   * d - degrees
+   * m - minutes
+   */
   Serial.print("Longitude: ");
   Serial.print(sGLL.LongitudeVal());
   Serial.print(" ");
   
-/*
- * Longitude wast or west
- * E - East
- * W - West
- */
+  /*
+   * Longitude wast or west
+   * E - East
+   * W - West
+   */
   Serial.println(sGLL.LongitudeDir());
 
-/*
- * DataStatus
- * V - Invalid
- * A - Valid  
- */
+  /*
+   * DataStatus
+   * V - Invalid
+   * A - Valid  
+   */
   Serial.print("Data Status: ");
   Serial.println(sGLL.DataStatus());
 
-/*
- * Positioning Mode
- * N - No fix
- * A - Autonomous GPS fix
- * D - Differential GPS fix
- */
+  /*
+   * Positioning Mode
+   * N - No fix
+   * A - Autonomous GPS fix
+   * D - Differential GPS fix
+   */
   Serial.print("Positioning Mode: ");
   Serial.println(sGLL.PositionMode());
   Serial.println();

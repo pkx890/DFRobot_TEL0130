@@ -80,10 +80,27 @@
  * @date  2019-10-29
  * @get from https://www.dfrobot.com
  */
- #include "DFRobot_BC20.h"
-
+#include "DFRobot_BC20.h"
+#define  RED 0
+#define  BLUE 1
+#define  GREEN 2
+#define  YELLOW 3
+#define  PURPLE 4
+#define  CYAN 5
+#define  WHITE 6
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -137,67 +154,72 @@ SoftwareSerial ss(PIN_TXD,PIN_RXD);
 DFRobot_BC20_SW_Serial myBC20(&ss);
 #endif
 
-//To wake STM32, the IRQ pin in the NB module is connected to the wakeup_pin
-#define wakeup_pin 7
+//To wake STM32, the IRQ pin in the NB module is connected to the WAKEUP_PIN
+#define WAKEUP_PIN 7
 
 String tempdata="";
 int nowTime=0;
 void setup() {
   Serial.begin(115200);
   Serial.println("Starting the BC20.Please wait. . . ");
-  while (!myBC20.powerOn()) {
-    delay(1000);
-    myBC20.controlLED("LED_R_ON");
-    delay(10);   
-    myBC20.controlLED("LED_R_OFF"); 
-    delay(10);    
+  myBC20.changeColor(RED);
+  while(!myBC20.powerOn()){
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);    
     Serial.print(".");
   }
   Serial.println("BC20 started successfully !");
-
-  while (!myBC20.checkNBCard()) {
-    Serial.println("Please insert the NB SIM card !");
-    delay(1000);
-    myBC20.controlLED("LED_G_ON");
-    delay(10);   
-    myBC20.controlLED("LED_G_OFF"); 
-    delay(10);    
+  
+  myBC20.changeColor(GREEN);
+  while(!myBC20.checkNBCard()){
+    Serial.println("Please insert the NB card !");
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);
   }
-/**
- * @Get the serial number of the NB card
- */  
+  /**
+   * @Get the serial number of the NB card
+   */  
   myBC20.getGSN(IMEI);
   Serial.print("BC20 IMEI: ");
   Serial.println(sGSN.imei);
   Serial.print("SIM card ICCID:");
-/**
- * @Get the SIM card number
- */  
+  /**
+   * @Get the SIM card number
+   */  
   Serial.println(myBC20.getQCCID());
   Serial.print("SIM card IMSI: ");
   Serial.println((char *)myBC20.getIMI());
   Serial.println("Connecting network ");
 
-/**
- * @Check whether it is attached to the network
-   @BC20 will automatically connect and register on network after power on
- */
-  while (myBC20.getGATT() == 0){
+  /**
+   * @Check whether it is attached to the network
+   * @BC20 will automatically connect and register on network after power on
+   */
+  myBC20.changeColor(BLUE);
+  while(myBC20.getGATT()==0){
     Serial.print(".");
-    delay(1000);
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);    
   }
-  Serial.println("Network connected!");
+  Serial.println("");
+  Serial.println("access success!");
 
-/**
- * @Turn on PSM mode
- */
+  /**
+   * @Turn on PSM mode
+   */
   if (myBC20.setPSMMode(ePSM_ON)) {
     Serial.println("set psm OK");
   }
-/* 
- * Turn off PSM by using the following line (PSM is ON by default)
- * myBC20.setPSMMode(ePSM_OFF); 
- */
+  /* 
+   * Turn off PSM by using the following line (PSM is ON by default)
+   * myBC20.setPSMMode(ePSM_OFF); 
+   */
 
 //BC20 serial print "QATWAKEUP" when it is woken up from PSM
   if (myBC20.setQATWAKEUP(ON)) {
@@ -220,17 +242,17 @@ void setup() {
   //STM32 enters low power mode
   myBC20.stmLowpower();
   nowTime=millis();
-/* 
- * Each AT command should begin with "AT" or "at" and end with "Carriage return".
- * The commands can be upper-case or lower-case. ex. "AT+CSQ" or "at+csq". 
- */
+  /* 
+   * Each AT command should begin with "AT" or "at" and end with "Carriage return".
+   * The commands can be upper-case or lower-case. ex. "AT+CSQ" or "at+csq". 
+   */
   Serial.println("Enter AT commands:");
 }
 
 void loop() {
-/**
- * STM32 and BC20 will go into low power mode every 5 seconds
- */
+  /**
+   * STM32 and BC20 will go into low power mode every 5 seconds
+   */
   if(millis()-nowTime>5000){
     Serial.println("Entering PSM!");
     myBC20.configSleepMode(eSleepMode_DeepSleep);
@@ -251,10 +273,10 @@ void loop() {
     Serial.println(myBC20.readData());
   } 
   
-/**
- * Provide the IRQ with a rising edge pulse
- */
-  myBC20.stmWakeup(wakeup_pin);
+  /**
+   * Provide the IRQ with a rising edge pulse
+   */
+  myBC20.stmWakeup(WAKEUP_PIN);
   Serial.println("Wake up from PSM!");
   if(myBC20.BC20Wakeup()){
     Serial.println("quit PSM success!");

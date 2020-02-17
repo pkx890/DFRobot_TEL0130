@@ -12,8 +12,26 @@
  */
 
 #include "DFRobot_BC20.h"
+#define  RED 0
+#define  BLUE 1
+#define  GREEN 2
+#define  YELLOW 3
+#define  PURPLE 4
+#define  CYAN 5
+#define  WHITE 6
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -70,69 +88,69 @@ DFRobot_BC20_SW_Serial myBC20(&ss);
 void setup(){
   Serial.begin(115200);
   Serial.println("Starting the BC20.Please wait. . . ");
+  myBC20.changeColor(RED);
   while(!myBC20.powerOn()){
-    delay(1000);
-    myBC20.controlLED("LED_R_ON");
-    delay(10);   
-    myBC20.controlLED("LED_R_OFF"); 
-    delay(10);    
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);    
     Serial.print(".");
   }
   Serial.println("BC20 started successfully !");
   
+  myBC20.changeColor(GREEN);
   while(!myBC20.checkNBCard()){
     Serial.println("Please insert the NB card !");
-    delay(1000);
-    myBC20.controlLED("LED_G_ON");
-    delay(10);   
-    myBC20.controlLED("LED_G_OFF"); 
-    delay(10);    
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);
   }
   Serial.println("Waitting for access ...");
   
-/**
- * For network connection, return 1 on success, 0 on failure
- */  
+  /**
+   * For network connection, return 1 on success, 0 on failure
+   */  
+  myBC20.changeColor(BLUE);
   while(myBC20.getGATT()==0){
     Serial.print(".");
-    delay(1000);
-    myBC20.controlLED("LED_B_ON");
-    delay(10);   
-    myBC20.controlLED("LED_B_OFF"); 
-    delay(10);    
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);    
   }
   Serial.println("");
   Serial.println("access success!");
   
-/**
- * Used to configure the sleep mode of bc20, the parameter is an enumeration type  
- */  
+  /**
+   * Used to configure the sleep mode of bc20, the parameter is an enumeration type  
+   */  
   myBC20.configSleepMode(eSleepMode_Disable);
   
-/**
- * Obtain extended signal quality   
- */    
+  /**
+   * Obtain extended signal quality   
+   */    
   myBC20.getESQ();
   
-/**
- * Gets the network registration status  
- */    
+  /**
+   * Gets the network registration status  
+   */    
   myBC20.getEREG();
   
-/**
- * Get the PDP address
- */  
+  /**
+   * Get the PDP address
+   */  
   myBC20.getGPADDR();
   
-/**
- * Get the PDP address
- */  
+  /**
+   * Get the PDP address
+   */  
   myBC20.setQFOTADL("http://download3.dfrobot.com.cn/nbtest/Update0406.bin");
 }
 void loop(){
-/**
- * Receive data when it comes in and send it in characters when it needs to be sent
- */  
+  /**
+   * Receive data when it comes in and send it in characters when it needs to be sent
+   */  
   if(Serial.available()){
     myBC20.sendATCMDBychar((char)Serial.read());
   }

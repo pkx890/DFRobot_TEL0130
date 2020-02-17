@@ -27,8 +27,19 @@ char* PORT = "1883";
 /*Set the Topic you need to publish to*/
 char* subTopic = "QjREoXEZg";
 
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -98,9 +109,9 @@ void ConnectCloud(){
     if(myBC20.connect(Client_ID,Iot_id,Iot_pwd)){          
       Serial.println("Connect Server OK");
     }else{
-/**
- * Used to detect the connection between the device and the server
- */
+      /**
+       * Used to detect the connection between the device and the server
+       */
       if(myBC20.getQMTCONN())
         break;
     }
@@ -114,44 +125,46 @@ void ConnectCloud(){
 }
 void setup(){
   Serial.begin(115200);
-  Serial.print("Starting the BC20.Please wait. . . ");
+  Serial.println("Starting the BC20.Please wait. . . ");
+  myBC20.changeColor(RED);
   while(!myBC20.powerOn()){
-    delay(1000);
-    myBC20.controlLED("LED_R_ON");
-    delay(10);   
-    myBC20.controlLED("LED_R_OFF"); 
-    delay(10);        
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);    
     Serial.print(".");
   }
   Serial.println("BC20 started successfully !");
   
+  myBC20.changeColor(GREEN);
   while(!myBC20.checkNBCard()){
     Serial.println("Please insert the NB card !");
-    delay(1000);
-    myBC20.controlLED("LED_G_ON");
-    delay(10);   
-    myBC20.controlLED("LED_G_OFF"); 
-    delay(10);       
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);
   }
-  
   Serial.println("Waitting for access ...");
-/**
- * For network connection, return 1 on success, 0 on failure
- */   
-  while(myBC20.getGATT() == 0){
+  
+  /**
+   * For network connection, return 1 on success, 0 on failure
+   */  
+  myBC20.changeColor(BLUE);
+  while(myBC20.getGATT()==0){
     Serial.print(".");
-    delay(1000);
-    myBC20.controlLED("LED_B_ON");
-    delay(10);   
-    myBC20.controlLED("LED_B_OFF"); 
-    delay(10);     
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);    
   }
+  Serial.println("");
   Serial.println("access success!");
-/**
- * Enable entering PSM.
- * When PSM is entered, BC20 will not receive any commands or signal from the moblie station (i.e. not controllable)
- * However, when during DRX/eDRX, BC20 will still response to AT commands or NB signal.
- */
+  Serial.println("Try to connect ...");
+  /**
+   * Enable entering PSM.
+   * When PSM is entered, BC20 will not receive any commands or signal from the moblie station (i.e. not controllable)
+   * However, when during DRX/eDRX, BC20 will still response to AT commands or NB signal.
+   */
   if (myBC20.setPSMMode(ePSM_ON)){
     Serial.println("PSM ON");
   }
@@ -160,25 +173,25 @@ void setup(){
   ConnectCloud();
   Serial.println("Connect success!!!");
 
-/**
- * BC20 enter PSM
- */
+  /**
+   * BC20 enter PSM
+   */
   if (myBC20.setPSMMode(ePSM_ON)){
     Serial.println("set psm OK");
   }
   
-/**
- * BC20 serial print "QATWAKEUP" when it is woken up from PSM
- */
+  /**
+   * BC20 serial print "QATWAKEUP" when it is woken up from PSM
+   */
   if (myBC20.setQATWAKEUP(ON)) {
     Serial.println("set QATWAKEUP");
   }
   
-/**
- * Enable entering PSM.
- * When PSM is entered, BC20 will not receive any commands or signal from the moblie station (i.e. not controllable)
- * However, when during DRX/eDRX, BC20 will still response to AT commands or NB signal.
- */
+  /**
+   * Enable entering PSM.
+   * When PSM is entered, BC20 will not receive any commands or signal from the moblie station (i.e. not controllable)
+   * However, when during DRX/eDRX, BC20 will still response to AT commands or NB signal.
+   */
   if (myBC20.configSleepMode(eSleepMode_DeepSleep)) {
     Serial.println("enable BC20 sleep");
   }
@@ -186,8 +199,8 @@ void setup(){
 
 void loop(){
   myBC20.loop();
-/*  
- * STM32 enter PSM 
- */
+  /*  
+   * STM32 enter PSM 
+   */
   myBC20.stmLowpower();	  
 }

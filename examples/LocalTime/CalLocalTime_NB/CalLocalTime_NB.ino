@@ -12,9 +12,26 @@
  * @get from https://www.dfrobot.com
  */
 #include "DFRobot_BC20.h"
-
+#define  RED 0
+#define  BLUE 1
+#define  GREEN 2
+#define  YELLOW 3
+#define  PURPLE 4
+#define  CYAN 5
+#define  WHITE 6
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -91,55 +108,60 @@ void printLocalTime()
 void setup()
 {
   Serial.begin(115200);
-  Serial.print("Starting the BC20.Please wait. . . ");
+  Serial.println("Starting the BC20.Please wait. . . ");
+  myBC20.changeColor(RED);
   while(!myBC20.powerOn()){
-    delay(1000);
-    Serial.print(".");
-    myBC20.controlLED("LED_G_ON");
+    myBC20.LED_ON();
     delay(500);
-    myBC20.controlLED("LED_G_OFF");
+    myBC20.LED_OFF();
     delay(500);    
+    Serial.print(".");
   }
   Serial.println("BC20 started successfully !");
   
+  myBC20.changeColor(GREEN);
   while(!myBC20.checkNBCard()){
-    Serial.println("Please insert the NB SIM card !");
-    myBC20.controlLED("LED_Y_ON");
+    Serial.println("Please insert the NB card !");
+    myBC20.LED_ON();
     delay(500);
-    myBC20.controlLED("LED_Y_OFF");
-    delay(500);    
-    delay(1000);
+    myBC20.LED_OFF();
+    delay(500);
   }
 
-/**
- * Print IMEI, ICCID and IMSI
- */    
+  /**
+   * Print IMEI, ICCID and IMSI
+   */    
   myBC20.getGSN(IMEI);
   Serial.print("BC20 IMEI: ");
   Serial.println(sGSN.imei);
   Serial.print("SIM card ICCID:");
   Serial.println(myBC20.getQCCID());
   Serial.print("SIM card IMSI: ");
-  Serial.println((char *)myBC20.getIMI());
-
-/** 
- * The module will automatically attempt to connect to the network (mobile station).
- * Check whether it is connected to the network. 
- */  
-  Serial.println("Waitting for access ...");
-  while(myBC20.getGATT() == 0){
-    Serial.print(".");
-    myBC20.controlLED("LED_G_ON");
-    delay(500);
-    myBC20.controlLED("LED_G_OFF");
-    delay(500);    
-    delay(1000);
-  }
+  Serial.println((char *)myBC20.getIMI());  
   
+  Serial.println("Waitting for access ...");
+  /**
+   * For network connection, return 1 on success, 0 on failure
+   */  
+  myBC20.changeColor(BLUE);
+  while(myBC20.getGATT()==0){
+    Serial.print(".");
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);    
+  }
+  Serial.println("");
+  Serial.println("access success!");
+  
+    /** 
+   * The module will automatically attempt to connect to the network (mobile station).
+   * Check whether it is connected to the network. 
+   */
   Serial.println("Waiting for NB time...");
-/**
- * Get system time
- */  
+  /**
+   * Get system time
+   */  
   while( myBC20.getCLK()){
     if(sCLK.Year > 2000){
       break;

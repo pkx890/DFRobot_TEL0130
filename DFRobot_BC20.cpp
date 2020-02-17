@@ -1885,7 +1885,7 @@ bool DFRobot_BC20 :: getQGNSSRD(char* cmd){
                         //sGSA.data[i].HDOP = GetSthfrontString(",",tempStr);
                         tempStr = removeSthString(",",tempStr);
 						addr=(sGSA.data[i].NUM)*72+4+4+4*12+4+4;
-						tempdata=GetSthfrontString("*",tempStr);
+						tempdata=GetSthfrontString(",",tempStr);
 						d=tempdata;
 						for(int j=0;j<strlen(d);j++){
 						  EEPROM.write(addr+j,d[j]);
@@ -1910,9 +1910,9 @@ bool DFRobot_BC20 :: getQGNSSRD(char* cmd){
                     }					
 					free(t_addr);
 					t_addr=NULL;				
- 				    getRecDataforNum(3+i,data);					
+ 				    getRecDataforNum(3+i,data);						
 					if(data != NULL){
-						t_addr =(char*)malloc(strlen((char*)data)+1);
+						t_addr =(char*)malloc(strlen((char*)data)+1);						
 						if(t_addr==NULL)
 						{
 							free(t_addr);
@@ -1927,7 +1927,12 @@ bool DFRobot_BC20 :: getQGNSSRD(char* cmd){
 						return false;
 					}
                 }				
-                CheckUse();					
+                CheckUse();
+				if(t_addr!=NULL)
+				{
+					free(t_addr);
+					return false;
+				}				
                 break;
             case 4://NMEA_GSV
             case 5:/* NMEA_GLL */			
@@ -3068,11 +3073,11 @@ String DFRobot_BC20_IIC::readData()
 	String tempData;
 	int a_addr=1;
 	int num=0;
-	uint8_t len = 0;
+	int len = 0;
     int tempInt;
     uint8_t tempNum = 0;
 	uint32_t nowtime = millis();
-	uint8_t  IIC_Len = 32;
+	int IIC_Len = 32;
     while(millis() - nowtime < 5000){
 		Wire.beginTransmission(IIC_addr);
 		Wire.write(0x00);
@@ -3117,11 +3122,11 @@ void DFRobot_BC20_IIC::receviceATCMD(uint32_t timeout){//Receive the command dat
 	int a_addr=1;
 	int num=0;
 	uint8_t flag=0;
-	uint8_t len = 0;
+	int len = 0;
     int tempInt;
     uint8_t tempNum = 0;
 	uint32_t nowtime = millis();
-	uint8_t  IIC_Len = 32;
+	int  IIC_Len = 32;
     while(millis() - nowtime < timeout){
 		Wire.beginTransmission(IIC_addr);
 		Wire.write(0x00);
@@ -3197,7 +3202,7 @@ if((num>5)&&(flag==0))
 			{
 				do{
 				tempInt = tempData.indexOf("\r\n");
-				if(tempInt != -1){		
+				if(tempInt != -1){					
 					cuappEnqueue((uint8_t *)((tempData.substring(0,tempInt+2)).c_str()),tempInt+2,tempNum);						
 					tempNum ++;
 					if((tempData.indexOf("OK\r\n") != -1))					

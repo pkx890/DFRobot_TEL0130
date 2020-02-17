@@ -20,8 +20,19 @@
 #define  CYAN 5
 #define  WHITE 6
 
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -85,13 +96,13 @@ void setup() {
   Serial.println("BC20 started successfully !");
 }
 void loop() {
-/**
- * Available colors:
- * RED;BLUE; 
- * GREEN;YELLOW 
- * PURPLE;CYAN 
- * WHITE
- */
+  /**
+   * Available colors:
+   * RED;BLUE; 
+   * GREEN;YELLOW 
+   * PURPLE;CYAN 
+   * WHITE
+   */
   for(int j=0;j<7;j++){
     for(int i=0;i<5;i++){
       myBC20.LED_ON();

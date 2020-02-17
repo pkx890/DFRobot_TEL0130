@@ -46,9 +46,26 @@
  */
 
 #include <DFRobot_BC20.h>
-
+#define  RED 0
+#define  BLUE 1
+#define  GREEN 2
+#define  YELLOW 3
+#define  PURPLE 4
+#define  CYAN 5
+#define  WHITE 6
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -116,24 +133,29 @@ static void NB_Signal_Fun() {
  * Weak signal - burst flash.
  */
   Serial.println("NB-IoT signal detection mode.");
-  Serial.println("Long press SET for over 1 sec to start...");
-  Serial.print("Starting the BC20. Please wait... ");
-  while (!myBC20.powerOn()) {
-    myBC20.LEDFlash("R");
+  Serial.print("Starting the BC20. Please wait . . . ");
+  myBC20.changeColor(RED);
+  while(!myBC20.powerOn()){
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);    
     Serial.print(".");
   }
   Serial.println("BC20 started successfully !");
   
-  //Check whether a NB-IoT SIM card is available.
-  while (!myBC20.checkNBCard()) {
-    myBC20.LEDFlash("G");
-    Serial.println("Please insert the NB SIM card !");
-    delay(1000);
+  myBC20.changeColor(GREEN);
+  while(!myBC20.checkNBCard()){
+    Serial.println("Please insert the NB card !");
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);
   }
 
-/**
- * Get the serial number of the NB card
- */
+  /**
+   * Get the serial number of the NB card
+   */
   myBC20.getGSN(IMEI);
   Serial.print("BC20 IMEI: ");
   Serial.println(sGSN.imei);
@@ -143,26 +165,30 @@ static void NB_Signal_Fun() {
   Serial.println((char *)myBC20.getIMI());
   Serial.println("Connecting network ");
 
-/*
- * Check whether it is attached to the network
- * BC20 will automatically connect and register on network after power on
- */
-  while (myBC20.getGATT() == 0) {
-    myBC20.LEDFlash("B");
+  /*
+   * Check whether it is attached to the network
+   * BC20 will automatically connect and register on network after power on
+   */
+  myBC20.changeColor(BLUE);
+  while(myBC20.getGATT()==0){
     Serial.print(".");
-    delay(1000);
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);    
   }
-  Serial.println("Network connected!");
+  Serial.println("");
+  Serial.println("access success!");
 
   while (1) {
-/**
- * Used to obtain the strength of the current network signal
- */
+  /**
+   * Used to obtain the strength of the current network signal
+   */
     myBC20.getSQ();
 
-/**
- * Signal quality RSSI<10, weak signal strength
- */
+    /**
+     * Signal quality RSSI<10, weak signal strength
+     */
     if(sSQ.rssi < 10 || sSQ.rssi == 99){
       myBC20.controlLED("LED_W_ON");  
       myBC20.controlLED("LED_W_OFF"); 
@@ -176,9 +202,9 @@ static void NB_Signal_Fun() {
         Serial.println(" dBm Weak");
       }
     }
-/*
- * Signal quality 10<=RSSI<25, medium signal strength
- */
+    /*
+     * Signal quality 10<=RSSI<25, medium signal strength
+     */
     else if(sSQ.rssi >= 10  && sSQ.rssi < 25){
       myBC20.controlLED("LED_W_ON");
       delay(500);
@@ -189,9 +215,9 @@ static void NB_Signal_Fun() {
       Serial.println(" dBm Medium");
     }
 
-/*
- * Signal quality RSSI>=25, strong signal strength
- */
+    /*
+     * Signal quality RSSI>=25, strong signal strength
+     */
     else if (sSQ.rssi >= 25){
       if(sSQ.rssi < 31){
         for (int i = 0; i < 5 ; i++) {

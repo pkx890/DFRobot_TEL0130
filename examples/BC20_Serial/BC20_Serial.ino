@@ -46,9 +46,26 @@
  * @get from https://www.dfrobot.com
  */
 #include "DFRobot_BC20.h"
-
+#define  RED 0
+#define  BLUE 1
+#define  GREEN 2
+#define  YELLOW 3
+#define  PURPLE 4
+#define  CYAN 5
+#define  WHITE 6
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -104,30 +121,30 @@ DFRobot_BC20_SW_Serial myBC20(&ss);
 
 void setup(){
   Serial.begin(115200);
-  Serial.print("Starting the BC20.Please wait. . . ");
+  Serial.println("Starting the BC20.Please wait. . . ");
+  myBC20.changeColor(RED);
   while(!myBC20.powerOn()){
-    delay(1000);
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);    
     Serial.print(".");
-    myBC20.controlLED("LED_R_ON");
-    delay(500);   
-    myBC20.controlLED("LED_R_OFF"); 
-    delay(500); 
   }
   Serial.println("BC20 started successfully !");
   myBC20.configSleepMode(eSleepMode_Disable);
-/**  
-  * Deep Sleep Mode is automatically enable every time upon power up.
-  * When this mode is entered, BC20 will not respond any AT commands from ESP32
-  * myBC20.ConfigSleepMode(eSleepMode_Disable);
-  * Each AT command should begin with "AT" or "at" and end with "Carriage return".
-  * The commands can be upper-case or lower-case. ex. "AT+CSQ" or "at+csq".
-  * Serial.println("Enter AT commands:");
- */
+  /**  
+    * Deep Sleep Mode is automatically enable every time upon power up.
+    * When this mode is entered, BC20 will not respond any AT commands from ESP32
+    * myBC20.ConfigSleepMode(eSleepMode_Disable);
+    * Each AT command should begin with "AT" or "at" and end with "Carriage return".
+    * The commands can be upper-case or lower-case. ex. "AT+CSQ" or "at+csq".
+    * Serial.println("Enter AT commands:");
+   */
 }
 void loop(){
-/**
- * Receive data when it comes in and send it in characters when it needs to be sent
- */
+  /**
+   * Receive data when it comes in and send it in characters when it needs to be sent
+   */
   if(Serial.available()){
     myBC20.sendATCMDBychar((char)Serial.read());
   }

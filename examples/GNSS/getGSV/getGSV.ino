@@ -16,9 +16,27 @@
  */
 
 #include "DFRobot_BC20.h"
-
+#include "DFRobot_BC20.h"
+#define  RED 0
+#define  BLUE 1
+#define  GREEN 2
+#define  YELLOW 3
+#define  PURPLE 4
+#define  CYAN 5
+#define  WHITE 6
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -75,21 +93,21 @@ DFRobot_BC20_SW_Serial myBC20(&ss);
 void Display_Satellite_Information(){	
   Serial.print(sSAT.NUM);
   Serial.println(" in view.");
-/**
- * Satellite PRN number
- */
+  /**
+   * Satellite PRN number
+   */
   Serial.print("PRN\t");
-/**
- * Elevation angle, unit in degrees
- */
+  /**
+   * Elevation angle, unit in degrees
+   */
   Serial.print("Elev(deg)\t");
-/**
- * Azimuth angle, unit in degrees
- */
+  /**
+   * Azimuth angle, unit in degrees
+   */
   Serial.print("Azim(deg)\t");
-/**
- * Signal Noise Ratio, unit in dBHz
- */
+  /**
+   * Signal Noise Ratio, unit in dBHz
+   */
   Serial.print("SNR(dBHz)\t");
   Serial.println("SYS");
   for(uint8_t i = 0; i <sSAT.NUM; i++){
@@ -107,34 +125,41 @@ void Display_Satellite_Information(){
 
 void setup(){
   Serial.begin(115200);
-  Serial.print("Starting the BC20.Please wait. . . ");
+  Serial.println("Starting the BC20.Please wait. . . ");
+  myBC20.changeColor(RED);
   while(!myBC20.powerOn()){
-    delay(1000);
-    myBC20.controlLED("LED_R_ON");
-    delay(10);   
-    myBC20.controlLED("LED_R_OFF"); 
-    delay(10);        
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);    
     Serial.print(".");
   }
   Serial.println("BC20 started successfully !");
   
-/**
- * Used for module power control. If the return value is 1, the module is in the state of power supply; 
- * if the return value is 0, the module is in the state of power loss    
- */
+  myBC20.configSleepMode(eSleepMode_Disable);
+  
+  Serial.println("check OK");
+  myBC20.changeColor(YELLOW);
+  /**
+   * Used for module power control. If the return value is 1, the module is in the state of power supply; 
+   * if the return value is 0, the module is in the state of power loss    
+   */  
   if(myBC20.getQGNSSC() == OFF){
-    myBC20.LEDFlash("Y");
-    Serial.println("open QGNSSC");
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);
     myBC20.setQGNSSC(ON);
   }
+  Serial.println("open QGNSSC");  
+  myBC20.changeColor(CYAN);
 }
 
 void loop(){
+  myBC20.LED_ON();
+  delay(500);
+  myBC20.LED_OFF();
   delay(5000);
-  myBC20.controlLED("LED_B_ON");
-  delay(100);
-  myBC20.controlLED("LED_B_OFF");
-  delay(100);
   myBC20.getQGNSSRD(NMEA_GSV);
   Display_Satellite_Information();
   myBC20.clearGPS();

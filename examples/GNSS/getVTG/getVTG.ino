@@ -12,9 +12,26 @@
  * @get from https://www.dfrobot.com
  */
 #include "DFRobot_BC20.h"
-
+#define  RED 0
+#define  BLUE 1
+#define  GREEN 2
+#define  YELLOW 3
+#define  PURPLE 4
+#define  CYAN 5
+#define  WHITE 6
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -70,71 +87,77 @@ DFRobot_BC20_SW_Serial myBC20(&ss);
 
 void setup(){
   Serial.begin(115200);
-  Serial.print("Starting the BC20.Please wait. . . ");
+  Serial.println("Starting the BC20.Please wait. . . ");
+  myBC20.changeColor(RED);
   while(!myBC20.powerOn()){
-    delay(1000);
-    myBC20.controlLED("LED_R_ON");
-    delay(10);   
-    myBC20.controlLED("LED_R_OFF"); 
-    delay(10);       
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);    
     Serial.print(".");
   }
   Serial.println("BC20 started successfully !");
-  Serial.println("check OK");
   
-/**
- * Used for module power control. If the return value is 1, the module is in the state of power supply; 
- * if the return value is 0, the module is in the state of power loss    
- */
+  myBC20.configSleepMode(eSleepMode_Disable);
+  
+  Serial.println("check OK");
+  myBC20.changeColor(YELLOW);
+  /**
+   * Used for module power control. If the return value is 1, the module is in the state of power supply; 
+   * if the return value is 0, the module is in the state of power loss    
+   */  
   if(myBC20.getQGNSSC() == OFF){
-    myBC20.LEDFlash("Y");
-    Serial.println("open QGNSSC");
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);
     myBC20.setQGNSSC(ON);
   }
+  Serial.println("open QGNSSC");  
+  myBC20.changeColor(CYAN);
 }
 
 void loop(){
-  delay(1000);
-  myBC20.controlLED("LED_B_ON");
-  delay(100);
-  myBC20.controlLED("LED_B_OFF");
-  delay(100);
+  myBC20.LED_ON();
+  delay(500);
+  myBC20.LED_OFF();
+  delay(5000);
   myBC20.getQGNSSRD(NMEA_VTG);
   
-/*
- * Course over ground (true), unit in degrees 
- */
+  /*
+   * Course over ground (true), unit in degrees 
+   */
   Serial.print("Course over ground (true): ");
   Serial.print(sVTG.GroundCourse_True());
   Serial.println(" deg");
   
-/* 
- * Course over ground (magnetic), unit in degrees 
- */
+  /* 
+   * Course over ground (magnetic), unit in degrees 
+   */
   Serial.print("Course over ground (magnetic): ");
   Serial.print(sVTG.GroundCourse_Mag());
   Serial.println(" deg");
   
-/*
- * Speed over ground, unit in knots 
- */
+  /*
+   * Speed over ground, unit in knots 
+   */
   Serial.print("Ground Speed (knots): ");
   Serial.print(sVTG.GroundCourse_Knots());
   Serial.println(" knots");
   
-/*  
- * Speed over ground, unit in km/h 
- */
+  /*  
+   * Speed over ground, unit in km/h 
+   */
   Serial.print("Ground Speed (km/h): ");
   Serial.print(sVTG.GroundCourse_Kmh());
   Serial.println(" km/h");
   
-/*
- * Positioning Mode
- * N - No fix
- * A - Autonomous GPS fix
- * D - Differential GPS fix 
- */
+  /*
+   * Positioning Mode
+   * N - No fix
+   * A - Autonomous GPS fix
+   * D - Differential GPS fix 
+   */
   Serial.print("Positioning Mode: ");
   Serial.println(sVTG.PositioningMode());
   Serial.println();

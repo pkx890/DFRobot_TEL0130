@@ -1202,7 +1202,7 @@ class DFRobot_BC20_IIC:public DFRobot_BC20{
 		void sendATCMDBychar(char str);
 		bool available(void);
 	private:
-		uint8_t IIC_addr;
+		int IIC_addr;
 };
 #ifndef ARDUINO_ESP32_DEV
 class DFRobot_BC20_SW_Serial:public DFRobot_BC20{

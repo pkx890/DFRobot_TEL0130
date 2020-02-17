@@ -15,9 +15,26 @@
 
 #include "DFRobot_BC20.h"
 #include "DFRobot_Iot.h"
-
+#define  RED 0
+#define  BLUE 1
+#define  GREEN 2
+#define  YELLOW 3
+#define  PURPLE 4
+#define  CYAN 5
+#define  WHITE 6
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -115,52 +132,54 @@ void ConnectCloud(){
 void setup(){
   Serial.begin(115200);
   Serial.println("Starting the BC20.Please wait. . . ");
+  myBC20.changeColor(RED);
   while(!myBC20.powerOn()){
-    delay(1000);
-    myBC20.controlLED("LED_R_ON");
-    delay(10);   
-    myBC20.controlLED("LED_R_OFF"); 
-    delay(10);    
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);    
     Serial.print(".");
   }
   Serial.println("BC20 started successfully !");
   
+  myBC20.changeColor(GREEN);
   while(!myBC20.checkNBCard()){
     Serial.println("Please insert the NB card !");
-    delay(1000);
-    myBC20.controlLED("LED_G_ON");
-    delay(10);   
-    myBC20.controlLED("LED_G_OFF"); 
-    delay(10);    
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);
   }
   Serial.println("Waitting for access ...");
   
-/**
- * For network connection, return 1 on success, 0 on failure
- */
-  while(myBC20.getGATT() == 0){
+  /**
+   * For network connection, return 1 on success, 0 on failure
+   */  
+  myBC20.changeColor(BLUE);
+  while(myBC20.getGATT()==0){
     Serial.print(".");
-    delay(1000);
-    myBC20.controlLED("LED_B_ON");
-    delay(10);   
-    myBC20.controlLED("LED_B_OFF"); 
-    delay(10);    
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);    
   }
+  Serial.println("");
+  Serial.println("access success!");
   
   myDevice.init(ALIYUN_SERVER,ProductKey,ClientId,DeviceName,DeviceSecret);
 
-/**
- * Use to connect to Internet of things sites
- */  
+  /**
+   * Use to connect to Internet of things sites
+   */  
   myBC20.setServer(myDevice._mqttServer,PORT);
   ConnectCloud();
 }
 
 void loop(){
   delay(10000);
-/**
- * Used to send a message to the server, parameter description: the first parameter is used to specify the topic,   
- * the second parameter is the specific data to be sent
- */  
+  /**
+   * Used to send a message to the server, parameter description: the first parameter is used to specify the topic,   
+   * the second parameter is the specific data to be sent
+   */  
   myBC20.publish(pubTopic,"Hello test");
 }

@@ -10,8 +10,26 @@
  * @get from https://www.dfrobot.com
  */
 #include "DFRobot_BC20.h"
+#define  RED 0
+#define  BLUE 1
+#define  GREEN 2
+#define  YELLOW 3
+#define  PURPLE 4
+#define  CYAN 5
+#define  WHITE 6
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -64,9 +82,9 @@ DFRobot_BC20_SW_Serial myBC20(&ss);
 
 void Display_Location_Information(){
   
-/*
- * UTC time of the anchor point
- */
+  /*
+   * UTC time of the anchor point
+   */
   Serial.print("Time:\t\t");
   Serial.print(sCLK.Year);
   Serial.print("/");
@@ -133,30 +151,45 @@ void Display_Satellite_Information(){
 
 void setup(){
   Serial.begin(115200);
-  Serial.print("Starting the BC20.Please wait. . . ");
+  Serial.println("Starting the BC20.Please wait. . . ");
+  myBC20.changeColor(RED);
   while(!myBC20.powerOn()){
-    delay(1000);
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);    
     Serial.print(".");
   }
   Serial.println("BC20 started successfully !");
+  
+  myBC20.configSleepMode(eSleepMode_Disable);
+  
   Serial.println("check OK");
-
-/**
- * Used for module power control. If the return value is 1, the module is in the state of power supply; 
- * if the return value is 0, the module is in the state of power loss    
- */
+  myBC20.changeColor(YELLOW);
+  /**
+   * Used for module power control. If the return value is 1, the module is in the state of power supply; 
+   * if the return value is 0, the module is in the state of power loss    
+   */  
   if(myBC20.getQGNSSC() == OFF){
-    Serial.println("open QGNSSC");
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);
     myBC20.setQGNSSC(ON);
   }
+  Serial.println("open QGNSSC");  
+  myBC20.changeColor(CYAN);
 }
 
 void loop(){
+  myBC20.LED_ON();
+  delay(500);
+  myBC20.LED_OFF();
   delay(5000);
-/**
- * Is used to obtain the specified satellite information, and the parameter is used to specify the type of information to be obtained. 
- * The parameter is selected as follows:
- */
+  /**
+   * Is used to obtain the specified satellite information, and the parameter is used to specify the type of information to be obtained. 
+   * The parameter is selected as follows:
+   */
   myBC20.getQGNSSRD();
   Display_Location_Information();
   Display_Satellite_Information();
