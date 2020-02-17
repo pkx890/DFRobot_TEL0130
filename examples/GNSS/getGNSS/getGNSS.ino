@@ -36,19 +36,16 @@ DFRobot_BC20_IIC myBC20(0x33);
 #elif defined(USE_HSERIAL)
 /*
  * Connect Instructions
- * esp32      |               MEGA Series    |    Module(BC20)
- * IO17       |               D16(RX)        |       D/T
- * IO16       |               D17(TX)        |       C/R
- * GND        |               GND            |       GND
- * 5V(USB) or 3V3(battery)  | 5V or 3V3      |       VCC
+ * esp32      |    Module(BC20)
+ * IO17       |       D/T
+ * IO16       |       C/R
+ * GND        |       GND
+ * 5V(USB) or 3V3(battery)  |       VCC
  */
-//For MEGA2560/ESP32 HardwareSerial
-#if defined(ARDUINO_ESP32_DEV)
+
 HardwareSerial Serial2(2);
 DFRobot_BC20_Serial myBC20(&Serial2);//ESP32HardwareSerial
-#else
-DFRobot_BC20_Serial myBC20(&Serial1);//others
-#endif
+
 /******************SoftwareSerial******************/
 #elif defined(USE_SSERIAL)
 /*
