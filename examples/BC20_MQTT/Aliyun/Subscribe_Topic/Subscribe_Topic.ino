@@ -34,8 +34,19 @@ char* subTopic = "your_sub_Topic";//****set
 char* pubTopic = "your_pub_Topic";//******post
 
 
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -143,9 +154,9 @@ void setup(){
   }
   Serial.println("Waitting for access ...");
   
-/**
- * For network connection, return 1 on success, 0 on failure
- */
+  /**
+   * For network connection, return 1 on success, 0 on failure
+   */
   while(myBC20.getGATT() == 0){
     Serial.print(".");
     delay(1000);
@@ -157,9 +168,9 @@ void setup(){
   
   myDevice.init(ALIYUN_SERVER,ProductKey,ClientId,DeviceName,DeviceSecret);
 
-/**
- * Use to connect to Internet of things sites
- */  
+  /**
+   * Use to connect to Internet of things sites
+   */  
   myBC20.setServer(myDevice._mqttServer,PORT);
   myBC20.setCallback(callback);
   ConnectCloud();

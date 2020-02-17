@@ -17,8 +17,19 @@
 
 #include "DFRobot_BC20.h"
 
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -75,21 +86,21 @@ DFRobot_BC20_SW_Serial myBC20(&ss);
 void Display_Satellite_Information(){	
   Serial.print(sSAT.NUM);
   Serial.println(" in view.");
-/**
- * Satellite PRN number
- */
+  /**
+   * Satellite PRN number
+   */
   Serial.print("PRN\t");
-/**
- * Elevation angle, unit in degrees
- */
+  /**
+   * Elevation angle, unit in degrees
+   */
   Serial.print("Elev(deg)\t");
-/**
- * Azimuth angle, unit in degrees
- */
+  /**
+   * Azimuth angle, unit in degrees
+   */
   Serial.print("Azim(deg)\t");
-/**
- * Signal Noise Ratio, unit in dBHz
- */
+  /**
+   * Signal Noise Ratio, unit in dBHz
+   */
   Serial.print("SNR(dBHz)\t");
   Serial.println("SYS");
   for(uint8_t i = 0; i <sSAT.NUM; i++){
@@ -118,10 +129,10 @@ void setup(){
   }
   Serial.println("BC20 started successfully !");
   
-/**
- * Used for module power control. If the return value is 1, the module is in the state of power supply; 
- * if the return value is 0, the module is in the state of power loss    
- */
+  /**
+   * Used for module power control. If the return value is 1, the module is in the state of power supply; 
+   * if the return value is 0, the module is in the state of power loss    
+   */
   if(myBC20.getQGNSSC() == OFF){
     myBC20.LEDFlash("Y");
     Serial.println("open QGNSSC");

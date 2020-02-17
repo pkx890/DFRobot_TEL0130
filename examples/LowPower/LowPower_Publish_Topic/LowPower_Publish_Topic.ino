@@ -28,8 +28,19 @@ char* PORT = "1883";
 /*Set the Topic you need to publish to*/
 char* pubTopic = "QjREoXEZg";
 
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -82,7 +93,7 @@ DFRobot_BC20_Serial myBC20(&Serial1);//others
 SoftwareSerial ss(PIN_TXD,PIN_RXD);
 DFRobot_BC20_SW_Serial myBC20(&ss);
 #endif
-#define wakeup_pin 7
+#define WAKEUP_PIN 7
 uint8_t timeout;
 
 void ConnectCloud(){
@@ -91,9 +102,9 @@ void ConnectCloud(){
     if(myBC20.connect(Client_ID,Iot_id,Iot_pwd)){
       Serial.println("server is available");
     }else{
-/**
- * Used to detect the connection between the device and the server
- */
+      /**
+        * Used to detect the connection between the device and the server
+       */
       if(myBC20.getQMTCONN())
          break;
      }
@@ -102,7 +113,7 @@ void ConnectCloud(){
 void setup(){
   Serial.begin(115200);
   Serial.print("Starting the BC20.Please wait. . . ");
-  myBC20.stmWakeup(wakeup_pin);
+  myBC20.stmWakeup(WAKEUP_PIN);
   while(!myBC20.powerOn()){
     delay(1000);
     myBC20.controlLED("LED_R_ON");
@@ -123,9 +134,9 @@ void setup(){
   }
 
   Serial.println("Waitting for access ...");
-/**
- * For network connection, return 1 on success, 0 on failure
- */  
+  /**
+   * For network connection, return 1 on success, 0 on failure
+   */  
   while(myBC20.getGATT() == 0){
     Serial.print(".");
     delay(1000);
@@ -143,24 +154,24 @@ void setup(){
   ConnectCloud();
   Serial.println("Connect Cloud success!");
 
-/* 
- *BC20 enter PSM 
- */
+  /* 
+   *BC20 enter PSM 
+   */
   if (myBC20.setPSMMode(ePSM_ON)) {
     Serial.println("set psm OK");
   }
   
-/* 
- *BC20 serial print "QATWAKEUP" when it is woken up from PSM
- */  
+  /* 
+   *BC20 serial print "QATWAKEUP" when it is woken up from PSM
+   */  
   if (myBC20.setQATWAKEUP(ON)) {
     Serial.println("set QATWAKEUP");
   }
-/* 
- *Enable entering PSM.
- *When PSM is entered, BC20 will not receive any commands or signal from the moblie station (i.e. not controllable)
- *However, when during DRX/eDRX, BC20 will still response to AT commands or NB signal.
- */ 
+  /* 
+   *Enable entering PSM.
+   *When PSM is entered, BC20 will not receive any commands or signal from the moblie station (i.e. not controllable)
+   *However, when during DRX/eDRX, BC20 will still response to AT commands or NB signal.
+   */ 
   if (myBC20.configSleepMode(eSleepMode_DeepSleep)) {
     Serial.println("enable BC20 sleep");
   }
@@ -169,7 +180,7 @@ void setup(){
 
 void loop(){
   if(timeout>5){
-    myBC20.stmWakeup(wakeup_pin);
+    myBC20.stmWakeup(WAKEUP_PIN);
     while (!myBC20.BC20Wakeup()) {
       Serial.print("BC20Wakeup...");
       delay(1000);
@@ -178,10 +189,10 @@ void loop(){
     Serial.println("send message to cloud...");
     myBC20.publish(pubTopic,"hello");
   
-/* 
- *BC20 enter PSM
- *STM32 enter PSM
- */  
+    /* 
+     *BC20 enter PSM
+     *STM32 enter PSM
+     */  
     myBC20.stmLowpower();
     timeout=0;
   }else{

@@ -13,8 +13,19 @@
  */
 #include "DFRobot_BC20.h"
 
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -111,9 +122,9 @@ void setup()
     delay(1000);
   }
 
-/**
- * Print IMEI, ICCID and IMSI
- */    
+  /**
+   * Print IMEI, ICCID and IMSI
+   */    
   myBC20.getGSN(IMEI);
   Serial.print("BC20 IMEI: ");
   Serial.println(sGSN.imei);
@@ -122,10 +133,10 @@ void setup()
   Serial.print("SIM card IMSI: ");
   Serial.println((char *)myBC20.getIMI());
 
-/** 
- * The module will automatically attempt to connect to the network (mobile station).
- * Check whether it is connected to the network. 
- */  
+  /** 
+   * The module will automatically attempt to connect to the network (mobile station).
+   * Check whether it is connected to the network. 
+   */  
   Serial.println("Waitting for access ...");
   while(myBC20.getGATT() == 0){
     Serial.print(".");
@@ -137,9 +148,9 @@ void setup()
   }
   
   Serial.println("Waiting for NB time...");
-/**
- * Get system time
- */  
+  /**
+   * Get system time
+   */  
   while( myBC20.getCLK()){
     if(sCLK.Year > 2000){
       break;

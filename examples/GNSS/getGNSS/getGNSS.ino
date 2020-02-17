@@ -10,8 +10,19 @@
  * @get from https://www.dfrobot.com
  */
 #include "DFRobot_BC20.h"
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -64,9 +75,9 @@ DFRobot_BC20_SW_Serial myBC20(&ss);
 
 void Display_Location_Information(){
   
-/*
- * UTC time of the anchor point
- */
+  /*
+   * UTC time of the anchor point
+   */
   Serial.print("Time:\t\t");
   Serial.print(sCLK.Year);
   Serial.print("/");
@@ -141,10 +152,10 @@ void setup(){
   Serial.println("BC20 started successfully !");
   Serial.println("check OK");
 
-/**
- * Used for module power control. If the return value is 1, the module is in the state of power supply; 
- * if the return value is 0, the module is in the state of power loss    
- */
+  /**
+   * Used for module power control. If the return value is 1, the module is in the state of power supply; 
+   * if the return value is 0, the module is in the state of power loss    
+   */
   if(myBC20.getQGNSSC() == OFF){
     Serial.println("open QGNSSC");
     myBC20.setQGNSSC(ON);
@@ -153,10 +164,10 @@ void setup(){
 
 void loop(){
   delay(5000);
-/**
- * Is used to obtain the specified satellite information, and the parameter is used to specify the type of information to be obtained. 
- * The parameter is selected as follows:
- */
+  /**
+   * Is used to obtain the specified satellite information, and the parameter is used to specify the type of information to be obtained. 
+   * The parameter is selected as follows:
+   */
   myBC20.getQGNSSRD();
   Display_Location_Information();
   Display_Satellite_Information();

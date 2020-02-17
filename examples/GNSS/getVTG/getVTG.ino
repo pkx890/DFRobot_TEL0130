@@ -13,8 +13,19 @@
  */
 #include "DFRobot_BC20.h"
 
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -82,10 +93,10 @@ void setup(){
   Serial.println("BC20 started successfully !");
   Serial.println("check OK");
   
-/**
- * Used for module power control. If the return value is 1, the module is in the state of power supply; 
- * if the return value is 0, the module is in the state of power loss    
- */
+  /**
+   * Used for module power control. If the return value is 1, the module is in the state of power supply; 
+   * if the return value is 0, the module is in the state of power loss    
+   */
   if(myBC20.getQGNSSC() == OFF){
     myBC20.LEDFlash("Y");
     Serial.println("open QGNSSC");
@@ -101,40 +112,40 @@ void loop(){
   delay(100);
   myBC20.getQGNSSRD(NMEA_VTG);
   
-/*
- * Course over ground (true), unit in degrees 
- */
+  /*
+   * Course over ground (true), unit in degrees 
+   */
   Serial.print("Course over ground (true): ");
   Serial.print(sVTG.GroundCourse_True());
   Serial.println(" deg");
   
-/* 
- * Course over ground (magnetic), unit in degrees 
- */
+  /* 
+   * Course over ground (magnetic), unit in degrees 
+   */
   Serial.print("Course over ground (magnetic): ");
   Serial.print(sVTG.GroundCourse_Mag());
   Serial.println(" deg");
   
-/*
- * Speed over ground, unit in knots 
- */
+  /*
+   * Speed over ground, unit in knots 
+   */
   Serial.print("Ground Speed (knots): ");
   Serial.print(sVTG.GroundCourse_Knots());
   Serial.println(" knots");
   
-/*  
- * Speed over ground, unit in km/h 
- */
+  /*  
+   * Speed over ground, unit in km/h 
+   */
   Serial.print("Ground Speed (km/h): ");
   Serial.print(sVTG.GroundCourse_Kmh());
   Serial.println(" km/h");
   
-/*
- * Positioning Mode
- * N - No fix
- * A - Autonomous GPS fix
- * D - Differential GPS fix 
- */
+  /*
+   * Positioning Mode
+   * N - No fix
+   * A - Autonomous GPS fix
+   * D - Differential GPS fix 
+   */
   Serial.print("Positioning Mode: ");
   Serial.println(sVTG.PositioningMode());
   Serial.println();

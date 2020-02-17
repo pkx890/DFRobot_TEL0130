@@ -47,8 +47,19 @@
  */
 #include "DFRobot_BC20.h"
 
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -115,19 +126,19 @@ void setup(){
   }
   Serial.println("BC20 started successfully !");
   myBC20.configSleepMode(eSleepMode_Disable);
-/**  
-  * Deep Sleep Mode is automatically enable every time upon power up.
-  * When this mode is entered, BC20 will not respond any AT commands from ESP32
-  * myBC20.ConfigSleepMode(eSleepMode_Disable);
-  * Each AT command should begin with "AT" or "at" and end with "Carriage return".
-  * The commands can be upper-case or lower-case. ex. "AT+CSQ" or "at+csq".
-  * Serial.println("Enter AT commands:");
- */
+  /**  
+    * Deep Sleep Mode is automatically enable every time upon power up.
+    * When this mode is entered, BC20 will not respond any AT commands from ESP32
+    * myBC20.ConfigSleepMode(eSleepMode_Disable);
+    * Each AT command should begin with "AT" or "at" and end with "Carriage return".
+    * The commands can be upper-case or lower-case. ex. "AT+CSQ" or "at+csq".
+    * Serial.println("Enter AT commands:");
+   */
 }
 void loop(){
-/**
- * Receive data when it comes in and send it in characters when it needs to be sent
- */
+  /**
+   * Receive data when it comes in and send it in characters when it needs to be sent
+   */
   if(Serial.available()){
     myBC20.sendATCMDBychar((char)Serial.read());
   }

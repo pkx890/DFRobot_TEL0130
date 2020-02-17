@@ -28,8 +28,19 @@ char* PORT = "1883";
 /*Set the Topic you need to publish to*/
 char* pubTopic = "QjREoXEZg";
 
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -120,9 +131,9 @@ void setup(){
   }
   Serial.println("Waitting for access ...");
 
-/**
- * For network connection, return 1 on success, 0 on failure
- */ 
+  /**
+   * For network connection, return 1 on success, 0 on failure
+   */ 
   while(myBC20.getGATT() == 0){
     Serial.print(".");
     delay(1000);
@@ -134,9 +145,9 @@ void setup(){
   Serial.println("access success ...");
   Serial.println("Try to connect ...");
 
-/**
- * Use to connect to Internet of things sites
- */
+  /**
+   * Use to connect to Internet of things sites
+   */
   myBC20.setServer(EasyIot_SERVER,PORT);
   Serial.println("Server is available!");   
   ConnectCloud();

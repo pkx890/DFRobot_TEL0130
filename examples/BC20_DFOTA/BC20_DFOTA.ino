@@ -12,8 +12,19 @@
  */
 
 #include "DFRobot_BC20.h"
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -90,9 +101,9 @@ void setup(){
   }
   Serial.println("Waitting for access ...");
   
-/**
- * For network connection, return 1 on success, 0 on failure
- */  
+  /**
+   * For network connection, return 1 on success, 0 on failure
+   */  
   while(myBC20.getGATT()==0){
     Serial.print(".");
     delay(1000);
@@ -104,35 +115,35 @@ void setup(){
   Serial.println("");
   Serial.println("access success!");
   
-/**
- * Used to configure the sleep mode of bc20, the parameter is an enumeration type  
- */  
+  /**
+   * Used to configure the sleep mode of bc20, the parameter is an enumeration type  
+   */  
   myBC20.configSleepMode(eSleepMode_Disable);
   
-/**
- * Obtain extended signal quality   
- */    
+  /**
+   * Obtain extended signal quality   
+   */    
   myBC20.getESQ();
   
-/**
- * Gets the network registration status  
- */    
+  /**
+   * Gets the network registration status  
+   */    
   myBC20.getEREG();
   
-/**
- * Get the PDP address
- */  
+  /**
+   * Get the PDP address
+   */  
   myBC20.getGPADDR();
   
-/**
- * Get the PDP address
- */  
+  /**
+   * Get the PDP address
+   */  
   myBC20.setQFOTADL("http://download3.dfrobot.com.cn/nbtest/Update0406.bin");
 }
 void loop(){
-/**
- * Receive data when it comes in and send it in characters when it needs to be sent
- */  
+  /**
+   * Receive data when it comes in and send it in characters when it needs to be sent
+   */  
   if(Serial.available()){
     myBC20.sendATCMDBychar((char)Serial.read());
   }

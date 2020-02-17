@@ -47,8 +47,19 @@
 
 #include <DFRobot_BC20.h>
 
+/*
+ *Use IIC for communication
+ */
 #define USE_IIC
+
+/*
+ *Use SoftwareSerial port for communication
+ */
 //#define USE_HSERIAL
+
+/*
+ *Use HardwareSerial  port for communication
+ */
 //#define USE_SSERIAL
 /******************IIC******************/
 #ifdef USE_IIC
@@ -131,9 +142,9 @@ static void NB_Signal_Fun() {
     delay(1000);
   }
 
-/**
- * Get the serial number of the NB card
- */
+  /**
+   * Get the serial number of the NB card
+   */
   myBC20.getGSN(IMEI);
   Serial.print("BC20 IMEI: ");
   Serial.println(sGSN.imei);
@@ -143,10 +154,10 @@ static void NB_Signal_Fun() {
   Serial.println((char *)myBC20.getIMI());
   Serial.println("Connecting network ");
 
-/*
- * Check whether it is attached to the network
- * BC20 will automatically connect and register on network after power on
- */
+  /*
+   * Check whether it is attached to the network
+   * BC20 will automatically connect and register on network after power on
+   */
   while (myBC20.getGATT() == 0) {
     myBC20.LEDFlash("B");
     Serial.print(".");
@@ -155,14 +166,14 @@ static void NB_Signal_Fun() {
   Serial.println("Network connected!");
 
   while (1) {
-/**
- * Used to obtain the strength of the current network signal
- */
+  /**
+   * Used to obtain the strength of the current network signal
+   */
     myBC20.getSQ();
 
-/**
- * Signal quality RSSI<10, weak signal strength
- */
+    /**
+     * Signal quality RSSI<10, weak signal strength
+     */
     if(sSQ.rssi < 10 || sSQ.rssi == 99){
       myBC20.controlLED("LED_W_ON");  
       myBC20.controlLED("LED_W_OFF"); 
@@ -176,9 +187,9 @@ static void NB_Signal_Fun() {
         Serial.println(" dBm Weak");
       }
     }
-/*
- * Signal quality 10<=RSSI<25, medium signal strength
- */
+    /*
+     * Signal quality 10<=RSSI<25, medium signal strength
+     */
     else if(sSQ.rssi >= 10  && sSQ.rssi < 25){
       myBC20.controlLED("LED_W_ON");
       delay(500);
@@ -189,9 +200,9 @@ static void NB_Signal_Fun() {
       Serial.println(" dBm Medium");
     }
 
-/*
- * Signal quality RSSI>=25, strong signal strength
- */
+    /*
+     * Signal quality RSSI>=25, strong signal strength
+     */
     else if (sSQ.rssi >= 25){
       if(sSQ.rssi < 31){
         for (int i = 0; i < 5 ; i++) {
