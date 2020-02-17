@@ -1,5 +1,8 @@
 #include "DFRobot_queue.h"
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1189955d52f4e218b1dea004ddc03516d26dc4b4
 struct sQueueData *cumsgBufHead=NULL;
 struct sQueueData *cumsgBufTail=NULL;
 
@@ -7,9 +10,6 @@ void cuappEnqueue(uint8_t *pbuf, uint16_t len, uint16_t conn_id){
     struct sQueueData *p;
     p = (struct sQueueData*)malloc(sizeof(struct sQueueData)+len+1);
     if(p == NULL){
-/* 		Serial.print("Memory==");Serial.println(getFreeMemory());
-		Serial.print("pbuf==");Serial.println((char*)pbuf); */
-		//Serial.println("==================");
         free(p);
         return;
     }
@@ -25,9 +25,6 @@ void cuappEnqueue(uint8_t *pbuf, uint16_t len, uint16_t conn_id){
     p->handle = conn_id;
     memset(p->data,'\0',len+1);
     memcpy(p->data, pbuf, len);
-	//Serial.print("conn_id==");Serial.println(conn_id);
-	//Serial.print("p->data==");Serial.println((char*)p->data);
-	//Serial.println((char*)(getQueueHead())->data);
 }
 
 struct sQueueData *cuappDequeue(void){
