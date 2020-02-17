@@ -3068,11 +3068,11 @@ String DFRobot_BC20_IIC::readData()
 	String tempData;
 	int a_addr=1;
 	int num=0;
-	uint8_t len = 0;
+	int len = 0;
     int tempInt;
     uint8_t tempNum = 0;
 	uint32_t nowtime = millis();
-	uint8_t  IIC_Len = 32;
+	int IIC_Len = 32;
     while(millis() - nowtime < 5000){
 		Wire.beginTransmission(IIC_addr);
 		Wire.write(0x00);
@@ -3117,11 +3117,11 @@ void DFRobot_BC20_IIC::receviceATCMD(uint32_t timeout){//Receive the command dat
 	int a_addr=1;
 	int num=0;
 	uint8_t flag=0;
-	uint8_t len = 0;
+	int len = 0;
     int tempInt;
     uint8_t tempNum = 0;
 	uint32_t nowtime = millis();
-	uint8_t  IIC_Len = 32;
+	int  IIC_Len = 32;
     while(millis() - nowtime < timeout){
 		Wire.beginTransmission(IIC_addr);
 		Wire.write(0x00);
