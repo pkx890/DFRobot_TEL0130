@@ -85,7 +85,6 @@ DFRobot_BC20_Serial myBC20(&Serial1);//others
 SoftwareSerial ss(PIN_TXD,PIN_RXD);
 DFRobot_BC20_SW_Serial myBC20(&ss);
 #endif
-
 void setup(){
   Serial.begin(115200);
   Serial.println("Starting the BC20.Please wait. . . ");
@@ -98,15 +97,14 @@ void setup(){
     Serial.print(".");
   }
   Serial.println("BC20 started successfully !");
-  
   myBC20.configSleepMode(eSleepMode_Disable);
-  
   Serial.println("check OK");
+  
   myBC20.changeColor(YELLOW);
   /**
    * Used for module power control. If the return value is 1, the module is in the state of power supply; 
    * if the return value is 0, the module is in the state of power loss    
-   */  
+   */ 
   if(myBC20.getQGNSSC() == OFF){
     myBC20.LED_ON();
     delay(500);
@@ -124,70 +122,76 @@ void loop(){
   myBC20.LED_OFF();
   delay(5000);
   myBC20.getQGNSSRD(NMEA_GSA);
-  Serial.print("Mode\t");
-  Serial.print("Fix Status\t");
-  for(uint8_t i = 0; i < 12; i++){
-    Serial.print("CH");
-    Serial.print(i+1);
-    Serial.print("\t");
-  }
-  Serial.print("PDOP\t");
-  Serial.print("HDOP\t");
-  Serial.print("VDOP\t");
-  Serial.print("System ID\t");
+  Serial.print("Mode\t\t");
+  for(uint8_t i =0; i < sGSA.NUM; i++){ 
+    /*  
+     * Selection of 2D or 3D fix
+     * 'M'=Manual, forced to switch 2D/3D mode
+     * 'A'=Allowed to automatically switch 2D/3D mode
+     */  
+    Serial.print(sGSA.data[i].Mode());
+    Serial.print("\t\t");
+  }  
   Serial.println();
-  for(uint8_t i =0; i < sGSA.NUM; i++){        
-  /*  
-   * Selection of 2D or 3D fix
-   * 'M'=Manual, forced to switch 2D/3D mode
-   * 'A'=Allowed to automatically switch 2D/3D mode
-   */
-  Serial.print(sGSA.data[i].Mode());
-  Serial.print("\t");
+  
   /*
    * Fix Status
    * 1 - No fix
    * 2 - 2D fix
    * 3 - 3D fix
-   */
-  String a=sGSA.data[i].FixStatus();
-  Serial.print(sGSA.data[i].FixStatus());
-  Serial.print("\t\t");
-  
+   */  
+  Serial.print("Fix Status\t");
+  for(uint8_t i =0; i < sGSA.NUM; i++){ 
+    Serial.print(sGSA.data[i].Mode());
+    Serial.print("\t\t");
+  }  
+  Serial.println();  
   /*
    * A list of satellite being used on each channel
-   */
-  for(uint8_t j =0; j < 12; j++){
-      Serial.print(sGSA.data[i].Statellite_CH(j));
-      Serial.print("\t");
+   */  
+  for(uint8_t i = 0; i < 12; i++){
+    Serial.print("CH");
+    Serial.print(i+1);
+    Serial.print("\t\t");
+    for(uint8_t j =0; j < sGSA.NUM; j++){ 
+    Serial.print(sGSA.data[j].Statellite_CH(i));
+    Serial.print("\t\t");
+  } 
+    Serial.println(); 
   }
-  
-  /*
-   * PDOP: Position Dilution Of Precision
-   */
-  Serial.print(sGSA.data[i].PDOP());
-  Serial.print("\t");
-  
   /*
    * HDOP: Horizontal Dilution Of Precision
-   */
-  Serial.print(sGSA.data[i].HDOP());
-  Serial.print("\t");
+   */  
+  Serial.print("PDOP\t\t");
+  for(uint8_t i =0; i < sGSA.NUM; i++){ 
+    Serial.print(sGSA.data[i].PDOP());
+    Serial.print("\t\t");
+  }   
+  Serial.println(); 
   
   /*
    * VDOP: Vertical Dilution Of Precision
-   */
-  Serial.print(sGSA.data[i].VDOP());
-  Serial.print("\t");
+   */  
+  Serial.print("HDOP\t\t");
+  for(uint8_t i =0; i < sGSA.NUM; i++){ 
+    Serial.print(sGSA.data[i].HDOP());
+    Serial.print("\t\t");
+  }   
+  Serial.println();   
   
-  /*
-   * GNSS system ID
-   * 1 - GPS
-   * 2 - GLONASS (unavailable)
-   * 3 - Galileo (unavailable)
-   * 4 - BeiDou
-   */
-  Serial.println(sGSA.data[i].GNSS_SystemID());
-  }
+  Serial.print("VDOP\t\t");
+  for(uint8_t i =0; i < sGSA.NUM; i++){ 
+    Serial.print(sGSA.data[i].VDOP());
+    Serial.print("\t\t");
+  }   
+  Serial.println();  
+  
+  Serial.print("System ID\t");
+  for(uint8_t i =0; i < sGSA.NUM; i++){ 
+    Serial.print(sGSA.data[i].GNSS_SystemID());
+    Serial.print("\t\t");  
+  }        
+  Serial.println();     
   myBC20.clearGPS();
+  Serial.println();
 }

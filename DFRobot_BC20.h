@@ -487,7 +487,14 @@ struct sGSAD
 	for(int i = 0; i < 1; i++){
 		ret[i] =(char)EEPROM.read(addr+i);
 	}
-	char*a=ret; 		
+	char*a=ret; 
+    if(strcmp(a,"1"))
+	{
+		return("GPS");
+	}else if(strcmp(a,"4"))
+	{
+		return("BeiDou");
+	}
 	return a;
 	};	
 };
