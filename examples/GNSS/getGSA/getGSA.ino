@@ -13,6 +13,7 @@
  * @get from https://www.dfrobot.com
  */
 #include "DFRobot_BC20.h"
+<<<<<<< HEAD
 #define  RED 0
 #define  BLUE 1
 #define  GREEN 2
@@ -20,6 +21,9 @@
 #define  PURPLE 4
 #define  CYAN 5
 #define  WHITE 6
+=======
+
+>>>>>>> 1189955d52f4e218b1dea004ddc03516d26dc4b4
 /*
  *Use IIC for communication
  */
@@ -97,6 +101,11 @@ void setup(){
     Serial.print(".");
   }
   Serial.println("BC20 started successfully !");
+<<<<<<< HEAD
+=======
+  
+<<<<<<< HEAD
+>>>>>>> ea4ef71100f5e9c1ec06548a980e19e85fd5899e
   myBC20.configSleepMode(eSleepMode_Disable);
   Serial.println("check OK");
   
@@ -104,7 +113,17 @@ void setup(){
   /**
    * Used for module power control. If the return value is 1, the module is in the state of power supply; 
    * if the return value is 0, the module is in the state of power loss    
+<<<<<<< HEAD
    */ 
+=======
+   */  
+=======
+  /**
+   * Used for module power control. If the return value is 1, the module is in the state of power supply; 
+   * if the return value is 0, the module is in the state of power loss    
+   */
+>>>>>>> 1189955d52f4e218b1dea004ddc03516d26dc4b4
+>>>>>>> ea4ef71100f5e9c1ec06548a980e19e85fd5899e
   if(myBC20.getQGNSSC() == OFF){
     myBC20.LED_ON();
     delay(500);
