@@ -12,6 +12,7 @@
  * @get from https://www.dfrobot.com
  */
 #include "DFRobot_BC20.h"
+<<<<<<< HEAD
 #define  RED 0
 #define  BLUE 1
 #define  GREEN 2
@@ -19,6 +20,9 @@
 #define  PURPLE 4
 #define  CYAN 5
 #define  WHITE 6
+=======
+
+>>>>>>> 1189955d52f4e218b1dea004ddc03516d26dc4b4
 /*
  *Use IIC for communication
  */
@@ -137,8 +141,17 @@ void setup()
   Serial.print("SIM card ICCID:");
   Serial.println(myBC20.getQCCID());
   Serial.print("SIM card IMSI: ");
+<<<<<<< HEAD
   Serial.println((char *)myBC20.getIMI());  
   
+=======
+  Serial.println((char *)myBC20.getIMI());
+
+  /** 
+   * The module will automatically attempt to connect to the network (mobile station).
+   * Check whether it is connected to the network. 
+   */  
+>>>>>>> 1189955d52f4e218b1dea004ddc03516d26dc4b4
   Serial.println("Waitting for access ...");
   /**
    * For network connection, return 1 on success, 0 on failure
