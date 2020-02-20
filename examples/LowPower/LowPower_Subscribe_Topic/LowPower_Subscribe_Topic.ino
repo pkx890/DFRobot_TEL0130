@@ -145,19 +145,12 @@ void setup(){
     delay(500);
   }
   Serial.println("Waitting for access ...");
-<<<<<<< HEAD
   
   /**
    * For network connection, return 1 on success, 0 on failure
    */  
   myBC20.changeColor(BLUE);
   while(myBC20.getGATT()==0){
-=======
-  /**
-   * For network connection, return 1 on success, 0 on failure
-   */   
-  while(myBC20.getGATT() == 0){
->>>>>>> 1189955d52f4e218b1dea004ddc03516d26dc4b4
     Serial.print(".");
     myBC20.LED_ON();
     delay(500);
@@ -166,10 +159,7 @@ void setup(){
   }
   Serial.println("");
   Serial.println("access success!");
-<<<<<<< HEAD
   Serial.println("Try to connect ...");
-=======
->>>>>>> 1189955d52f4e218b1dea004ddc03516d26dc4b4
   /**
    * Enable entering PSM.
    * When PSM is entered, BC20 will not receive any commands or signal from the moblie station (i.e. not controllable)

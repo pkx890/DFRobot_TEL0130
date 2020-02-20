@@ -80,7 +80,6 @@
  * @date  2019-10-29
  * @get from https://www.dfrobot.com
  */
-<<<<<<< HEAD
 #include "DFRobot_BC20.h"
 #define  RED 0
 #define  BLUE 1
@@ -89,10 +88,6 @@
 #define  PURPLE 4
 #define  CYAN 5
 #define  WHITE 6
-=======
- #include "DFRobot_BC20.h"
-
->>>>>>> 1189955d52f4e218b1dea004ddc03516d26dc4b4
 /*
  *Use IIC for communication
  */
@@ -204,12 +199,8 @@ void setup() {
    * @Check whether it is attached to the network
    * @BC20 will automatically connect and register on network after power on
    */
-<<<<<<< HEAD
   myBC20.changeColor(BLUE);
   while(myBC20.getGATT()==0){
-=======
-  while (myBC20.getGATT() == 0){
->>>>>>> 1189955d52f4e218b1dea004ddc03516d26dc4b4
     Serial.print(".");
     myBC20.LED_ON();
     delay(500);

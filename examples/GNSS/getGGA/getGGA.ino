@@ -12,7 +12,6 @@
  * @get from https://www.dfrobot.com
  */
 #include "DFRobot_BC20.h"
-<<<<<<< HEAD
 #define  RED 0
 #define  BLUE 1
 #define  GREEN 2
@@ -20,17 +19,10 @@
 #define  PURPLE 4
 #define  CYAN 5
 #define  WHITE 6
-=======
-
->>>>>>> 1189955d52f4e218b1dea004ddc03516d26dc4b4
 /*
  *Use IIC for communication
  */
 #define USE_IIC
-<<<<<<< HEAD
-=======
-
->>>>>>> 1189955d52f4e218b1dea004ddc03516d26dc4b4
 /*
  *Use SoftwareSerial port for communication
  */

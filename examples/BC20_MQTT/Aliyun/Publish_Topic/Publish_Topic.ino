@@ -15,7 +15,6 @@
 
 #include "DFRobot_BC20.h"
 #include "DFRobot_Iot.h"
-<<<<<<< HEAD
 #define  RED 0
 #define  BLUE 1
 #define  GREEN 2
@@ -23,9 +22,6 @@
 #define  PURPLE 4
 #define  CYAN 5
 #define  WHITE 6
-=======
-
->>>>>>> 1189955d52f4e218b1dea004ddc03516d26dc4b4
 /*
  *Use IIC for communication
  */
@@ -158,14 +154,9 @@ void setup(){
   
   /**
    * For network connection, return 1 on success, 0 on failure
-<<<<<<< HEAD
    */  
   myBC20.changeColor(BLUE);
   while(myBC20.getGATT()==0){
-=======
-   */
-  while(myBC20.getGATT() == 0){
->>>>>>> 1189955d52f4e218b1dea004ddc03516d26dc4b4
     Serial.print(".");
     myBC20.LED_ON();
     delay(500);

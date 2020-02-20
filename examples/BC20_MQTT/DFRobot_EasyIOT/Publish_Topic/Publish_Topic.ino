@@ -136,20 +136,12 @@ void setup(){
     delay(500);
   }
   Serial.println("Waitting for access ...");
-<<<<<<< HEAD
   
   /**
    * For network connection, return 1 on success, 0 on failure
    */  
   myBC20.changeColor(BLUE);
   while(myBC20.getGATT()==0){
-=======
-
-  /**
-   * For network connection, return 1 on success, 0 on failure
-   */ 
-  while(myBC20.getGATT() == 0){
->>>>>>> 1189955d52f4e218b1dea004ddc03516d26dc4b4
     Serial.print(".");
     myBC20.LED_ON();
     delay(500);
