@@ -1,5 +1,8 @@
 #include "DFRobot_queue.h"
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1189955d52f4e218b1dea004ddc03516d26dc4b4
 struct sQueueData *cumsgBufHead=NULL;
 struct sQueueData *cumsgBufTail=NULL;
 
