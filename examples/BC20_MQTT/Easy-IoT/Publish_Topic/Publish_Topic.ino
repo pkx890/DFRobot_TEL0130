@@ -1,8 +1,8 @@
 /*!
-   @file getVTG.ino
-   @brief Print all the VTG info available in BC20.
-   @n VTG: Course Over Ground and Ground Speed.
-   @n The actual course and speed relative to the ground
+   @file Publish_Topic.ino
+
+   @brief Connect to DFRobot Easy-IoT cloud platform,
+   @brief and publish data to your Topic
 
    @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
    @licence     The MIT License (MIT)
@@ -11,9 +11,11 @@
    @date  2019-10-29
    @get from https://www.dfrobot.com
 */
-#include "DFRobot_BC20.h"
 
-/* 7 colors are available */
+#include "DFRobot_BC20.h"
+#include "DFRobot_Iot.h"
+
+/*7 colors are available*/
 #define  RED 0
 #define  BLUE 1
 #define  GREEN 2
@@ -21,6 +23,18 @@
 #define  PURPLE 4
 #define  CYAN 5
 #define  WHITE 6
+
+/*Configure device certificate information*/
+char* Iot_id = "HJZv1ZFRSQ";
+char* Client_ID  = "1234";
+char* Iot_pwd    = "ByfP1-YABX";
+
+/*Configure the domain name and port number*/
+char* EasyIot_SERVER = "182.254.130.180";
+char* PORT = "1883";
+
+/*Set the Topic you need to publish to*/
+char* pubTopic = "JbG9-uBZg";
 
 /*Communication by IIC*/
 #define USE_IIC
@@ -86,6 +100,28 @@ SoftwareSerial ss(PIN_TXD, PIN_RXD);
 DFRobot_BC20_SW_Serial myBC20(&ss);
 #endif
 
+void ConnectCloud() {
+  Serial.print("Attempting MQTT connection...");
+  myBC20.changeColor(YELLOW);
+  while (!myBC20.connected()) {
+    Serial.print(".");
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);
+
+    if (myBC20.connect(Client_ID, Iot_id, Iot_pwd)) {
+      Serial.println("\nConnect Server OK");
+    } else {
+      /**
+         Used to detect the connection between the device and the server
+      */
+      if (myBC20.getQMTCONN())
+        break;
+    }
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   myBC20.LED_OFF();
@@ -102,70 +138,53 @@ void setup() {
   }
   Serial.println("BC20 started successfully!");
 
-  /* Disable sleep mode */
-  myBC20.configSleepMode(eSleepMode_Disable);
+  /*Check whether SIM card is inserted*/
+  Serial.println("Checking SIM card ...");
+  myBC20.changeColor(GREEN);
+  while (!myBC20.checkNBCard()) {
+    Serial.println("Please insert the NB SIM card !");
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);
+  }
+  Serial.println("SIM card check OK!");
 
-  /*Power up GNSS*/
-  Serial.print("Turning on GNSS ... ");
-  myBC20.setQGNSSC(ON);
-  myBC20.changeColor(YELLOW);
-  if (myBC20.getQGNSSC() == OFF) {
+  /*Print IMEI, ICCID and IMSI*/
+  myBC20.getGSN(IMEI);
+  Serial.print("BC20 IMEI: ");
+  Serial.println(sGSN.imei);
+  Serial.print("SIM card ICCID:");
+  Serial.print(myBC20.getQCCID());
+  Serial.print("SIM card IMSI: ");
+  Serial.println((char *)myBC20.getIMI());
+
+  /**
+     The module will automatically attempt to connect to the network (mobile station).
+     Check whether it is connected to the network.
+  */
+  Serial.println("Connecting network ...");
+  myBC20.changeColor(BLUE);
+  while (myBC20.getGATT() == 0) {
     Serial.print(".");
     myBC20.LED_ON();
     delay(500);
     myBC20.LED_OFF();
     delay(500);
   }
-  Serial.println("GNSS is ON.");
-  myBC20.changeColor(CYAN);
+  Serial.println("Network is connected!");
+
+  Serial.println("Connecting to DFRobot Easy-IoT");
+
+  //Configure IoT Server
+  myBC20.setServer(EasyIot_SERVER, PORT);
+  Serial.println("Server is available!");
+  ConnectCloud();
 }
 
 void loop() {
-
-  myBC20.getQGNSSRD(NMEA_VTG);
-
-  /*
-     Course over ground (true), unit in degrees
-  */
-  Serial.print("Course over ground (true): ");
-  Serial.print(sVTG.GroundCourse_True());
-  Serial.println(" deg");
-
-  /*
-     Course over ground (magnetic), unit in degrees
-  */
-  Serial.print("Course over ground (magnetic): ");
-  Serial.print(sVTG.GroundCourse_Mag());
-  Serial.println(" deg");
-
-  /*
-     Speed over ground, unit in knots
-  */
-  Serial.print("Ground Speed (knots): ");
-  Serial.print(sVTG.GroundCourse_Knots());
-  Serial.println(" knots");
-
-  /*
-     Speed over ground, unit in km/h
-  */
-  Serial.print("Ground Speed (km/h): ");
-  Serial.print(sVTG.GroundCourse_Kmh());
-  Serial.println(" km/h");
-
-  /*
-     Positioning Mode
-     N - No fix
-     A - Autonomous GPS fix
-     D - Differential GPS fix
-  */
-  Serial.print("Positioning Mode: ");
-  Serial.println(sVTG.PositioningMode());
-  Serial.println();
-  Serial.println();
-  myBC20.clearGPS();
-
-  myBC20.LED_ON();
-  delay(500);
-  myBC20.LED_OFF();
   delay(5000);
+  Serial.println("send message to cloud...");
+  myBC20.publish(pubTopic, "hello");
+  Serial.println("Message is sent.");
 }

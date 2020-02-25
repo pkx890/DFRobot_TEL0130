@@ -1,19 +1,17 @@
 /*!
-   @file getVTG.ino
-   @brief Print all the VTG info available in BC20.
-   @n VTG: Course Over Ground and Ground Speed.
-   @n The actual course and speed relative to the ground
+   @file CalLocalTime_NB.ino
+
+   @brief Get local date & time by NB-IoT (moblie station)
 
    @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
    @licence     The MIT License (MIT)
    @author      [PengKaixing](kaixing.peng@dfrobot.com)
-   @version  V1.0
-   @date  2019-10-29
+   @date  2019-07-18
    @get from https://www.dfrobot.com
 */
 #include "DFRobot_BC20.h"
 
-/* 7 colors are available */
+/*7 colors are available*/
 #define  RED 0
 #define  BLUE 1
 #define  GREEN 2
@@ -86,7 +84,29 @@ SoftwareSerial ss(PIN_TXD, PIN_RXD);
 DFRobot_BC20_SW_Serial myBC20(&ss);
 #endif
 
-void setup() {
+void getLocalTime()
+{
+  /* Check whether the data is legal */
+  myBC20.changeColor(PURPLE);
+  while (myBC20.getCLK()) {
+    if (sCLK.Year > 2000) {
+      break;
+    }
+    Serial.print(".");
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);
+  }
+
+  //Date
+  Serial.print((String)sCLK.Year + "/" + (String)sCLK.Month + "/" + (String)sCLK.Day + " ");
+  //Time
+  Serial.println((String)sCLK.Hour + ":" + (String)sCLK.Minute + ":" + (String)sCLK.Second);
+}
+
+void setup()
+{
   Serial.begin(115200);
   myBC20.LED_OFF();
 
@@ -102,70 +122,46 @@ void setup() {
   }
   Serial.println("BC20 started successfully!");
 
-  /* Disable sleep mode */
-  myBC20.configSleepMode(eSleepMode_Disable);
+  /*Check whether SIM card is inserted*/
+  Serial.println("Checking SIM card ...");
+  myBC20.changeColor(GREEN);
+  while (!myBC20.checkNBCard()) {
+    Serial.println("Please insert the NB SIM card !");
+    myBC20.LED_ON();
+    delay(500);
+    myBC20.LED_OFF();
+    delay(500);
+  }
+  Serial.println("SIM card check OK!");
 
-  /*Power up GNSS*/
-  Serial.print("Turning on GNSS ... ");
-  myBC20.setQGNSSC(ON);
-  myBC20.changeColor(YELLOW);
-  if (myBC20.getQGNSSC() == OFF) {
+  /*Print IMEI, ICCID and IMSI*/
+  myBC20.getGSN(IMEI);
+  Serial.print("BC20 IMEI: ");
+  Serial.println(sGSN.imei);
+  Serial.print("SIM card ICCID:");
+  Serial.println(myBC20.getQCCID());
+  Serial.print("SIM card IMSI: ");
+  Serial.println((char *)myBC20.getIMI());
+
+  /**
+     The module will automatically attempt to connect to the network (mobile station).
+     Check whether it is connected to the network.
+  */
+  Serial.println("Connecting network ...");
+  myBC20.changeColor(BLUE);
+  while (myBC20.getGATT() == 0) {
     Serial.print(".");
     myBC20.LED_ON();
     delay(500);
     myBC20.LED_OFF();
     delay(500);
   }
-  Serial.println("GNSS is ON.");
-  myBC20.changeColor(CYAN);
+  Serial.println("Network is connected!");
 }
 
-void loop() {
-
-  myBC20.getQGNSSRD(NMEA_VTG);
-
-  /*
-     Course over ground (true), unit in degrees
-  */
-  Serial.print("Course over ground (true): ");
-  Serial.print(sVTG.GroundCourse_True());
-  Serial.println(" deg");
-
-  /*
-     Course over ground (magnetic), unit in degrees
-  */
-  Serial.print("Course over ground (magnetic): ");
-  Serial.print(sVTG.GroundCourse_Mag());
-  Serial.println(" deg");
-
-  /*
-     Speed over ground, unit in knots
-  */
-  Serial.print("Ground Speed (knots): ");
-  Serial.print(sVTG.GroundCourse_Knots());
-  Serial.println(" knots");
-
-  /*
-     Speed over ground, unit in km/h
-  */
-  Serial.print("Ground Speed (km/h): ");
-  Serial.print(sVTG.GroundCourse_Kmh());
-  Serial.println(" km/h");
-
-  /*
-     Positioning Mode
-     N - No fix
-     A - Autonomous GPS fix
-     D - Differential GPS fix
-  */
-  Serial.print("Positioning Mode: ");
-  Serial.println(sVTG.PositioningMode());
-  Serial.println();
-  Serial.println();
-  myBC20.clearGPS();
-
-  myBC20.LED_ON();
-  delay(500);
-  myBC20.LED_OFF();
-  delay(5000);
+void loop()
+{
+  /*Get local date & time and print*/
+  getLocalTime();
+  delay(1000);
 }

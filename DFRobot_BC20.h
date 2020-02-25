@@ -399,8 +399,15 @@ struct sGSAD
         for(int i = 0; i < 4; i++){
 			ret[i] =(char)EEPROM.read(addr+i);
         }
-        char*a=ret; 		
-        return a;
+        char*a=ret;
+		if(strcmp(a,"1")==0){
+			return "No fix";
+		}else if(strcmp(a,"2")==0){
+			return "2D fix";
+		}else if(strcmp(a,"3")==0){
+			return "3D fix";
+		}
+        
     };	
     //String Statellite_CH[12];
     char *Statellite_CH(int j){
@@ -901,6 +908,30 @@ typedef struct
     int TimeEquation;
 }sCLK_t;
 extern sCLK_t sCLK;
+
+#ifdef ARDUINO_AVR_UNO
+typedef struct
+{
+    uint8_t NUM;
+	char*LatitudeVal(){
+		return (sRMC.LatitudeVal());
+	}
+	char*LatitudeDir(){
+		return (sRMC.LatitudeDir());
+	}    
+	char*LongitudeVal(){
+		return (sRMC.LongitudeVal());
+	}
+	char*LongitudeDir(){
+		return (sRMC.LongitudeDir());
+	}
+	char*Speed(){
+		return (sRMC.GroundSpeed());
+	}
+}sGGNS_t;
+extern sGGNS_t sGGNS;
+#endif
+
 #ifndef ARDUINO_AVR_UNO
 struct sGSV2
 {
@@ -1155,13 +1186,13 @@ class DFRobot_BC20{
 	uint8_t getIntforString(String CMD,String basic,uint8_t n);
 	void DBGPrintRecData(void);
 	void getSatelliteInformation(uint8_t start, uint8_t num, char* str, char* sys);
-	String color="W";
+	String color="R";
 	void LED_ON();
 	void LED_OFF();
 	void changeColor(uint8_t newColor);
 	void controlLED(String str);
 	void LEDFlash(String Color);
-	void stmLowpower();
+	bool stmLowpower();
 	bool stmWakeup(uint8_t Awake_Pin);
 	
 	virtual void sendATCMD(char* str) =0;

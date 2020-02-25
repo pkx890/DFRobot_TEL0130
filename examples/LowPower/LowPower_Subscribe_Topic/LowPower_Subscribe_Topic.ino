@@ -1,9 +1,10 @@
 /*!
- * @file LowPower_Subscribe_Topic.ino
+ * @file Subscribe_Topic.ino
  * 
  * @brief After the program download is complete.
  * @brief You can use the BC20 module to connect to DFRobot Easy IOT cloud platform,
  * @brief and Subscribe your Topic
+ * @If you change the demo, you need to press the RST button
  *
  * @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
  * @licence     The MIT License (MIT)
@@ -14,7 +15,13 @@
  */
 #include "DFRobot_BC20.h"
 #include "DFRobot_Iot.h"
-
+#define  RED 0
+#define  BLUE 1
+#define  GREEN 2
+#define  YELLOW 3
+#define  PURPLE 4
+#define  CYAN 5
+#define  WHITE 6
 /*Configure device certificate information*/
 char* Iot_id = "Cv3YouPZR";
 char* Client_ID  = "2";
@@ -101,12 +108,24 @@ void callback(char * topic, uint8_t * payload, unsigned int len){
     Serial.print((char)payload[i]);
   }
   Serial.println();
-  myBC20.stmLowpower();
+
+  /**
+   * Enable entering PSM.
+   * When PSM is entered, BC20 will not receive any commands or signal from the moblie station (i.e. not controllable)
+   * However, when during DRX/eDRX, BC20 will still response to AT commands or NB signal.
+   */
+  if (myBC20.configSleepMode(eSleepMode_DeepSleep)) {
+    Serial.println("BC20 enturn PSM!");
+  }  
+  if(!myBC20.stmLowpower()){
+    Serial.println("stm32 enturn PSM!");
+  } 
 }
+
 void ConnectCloud(){
   while(!myBC20.connected()){
-    Serial.print("Attempting MQTT connection...");
-    if(myBC20.connect(Client_ID,Iot_id,Iot_pwd)){          
+    Serial.println("Attempting MQTT connection...");
+    if(myBC20.connect(Client_ID, Iot_id, Iot_pwd)){          
       Serial.println("Connect Server OK");
     }else{
       /**
@@ -117,12 +136,12 @@ void ConnectCloud(){
     }
   }
   myBC20.configSleepMode(eSleepMode_Disable);
-  while(!myBC20.subTopic('0','1',subTopic,'0'))
-  {
-     Serial.println("subTopicing...");
-     delay(500);
+  while(!myBC20.subTopic('0','1',subTopic,'0')){
+    Serial.println("subTopicing...");
+    delay(500);
   }
 }
+
 void setup(){
   Serial.begin(115200);
   Serial.println("Starting the BC20.Please wait. . . ");
@@ -160,47 +179,23 @@ void setup(){
   Serial.println("");
   Serial.println("access success!");
   Serial.println("Try to connect ...");
-  /**
-   * Enable entering PSM.
-   * When PSM is entered, BC20 will not receive any commands or signal from the moblie station (i.e. not controllable)
-   * However, when during DRX/eDRX, BC20 will still response to AT commands or NB signal.
-   */
-  if (myBC20.setPSMMode(ePSM_ON)){
-    Serial.println("PSM ON");
-  }
-  myBC20.setServer(EasyIot_SERVER,PORT);
-  myBC20.setCallback(callback);
-  ConnectCloud();
-  Serial.println("Connect success!!!");
 
   /**
-   * BC20 enter PSM
+   * Use to connect to Internet of things sites
    */
-  if (myBC20.setPSMMode(ePSM_ON)){
-    Serial.println("set psm OK");
-  }
-  
-  /**
-   * BC20 serial print "QATWAKEUP" when it is woken up from PSM
-   */
-  if (myBC20.setQATWAKEUP(ON)) {
-    Serial.println("set QATWAKEUP");
-  }
-  
-  /**
-   * Enable entering PSM.
-   * When PSM is entered, BC20 will not receive any commands or signal from the moblie station (i.e. not controllable)
-   * However, when during DRX/eDRX, BC20 will still response to AT commands or NB signal.
-   */
+  myBC20.setServer(EasyIot_SERVER,PORT);
+  Serial.println("Server is available!");   
+  ConnectCloud();
+  Serial.println("Connect Cloud success!");
+  myBC20.setCallback(callback);
   if (myBC20.configSleepMode(eSleepMode_DeepSleep)) {
-    Serial.println("enable BC20 sleep");
-  }
+    Serial.println("BC20 enturn PSM!");
+  }  
+  if(!myBC20.stmLowpower()){
+    Serial.println("stm32 enturn PSM!");
+  }  
 }
 
 void loop(){
-  myBC20.loop();
-  /*  
-   * STM32 enter PSM 
-   */
-  myBC20.stmLowpower();	  
+    myBC20.loop(); 
 }

@@ -1,12 +1,10 @@
 /*!
-   @file getVTG.ino
-   @brief Print all the VTG info available in BC20.
-   @n VTG: Course Over Ground and Ground Speed.
-   @n The actual course and speed relative to the ground
-
+   @file getGNSS.ino
+   @brief Print all the GNSS info available in BC20.
+   @Compiling this DEMO DOSE NOT work on Arduino UNO, requiring a Dev. board with more RAM.
    @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
    @licence     The MIT License (MIT)
-   @author      [PengKaixing](kaixing.peng@dfrobot.com)
+   @author      [Peng Kaixing](kaixing.peng@dfrobot.com)
    @version  V1.0
    @date  2019-10-29
    @get from https://www.dfrobot.com
@@ -86,6 +84,78 @@ SoftwareSerial ss(PIN_TXD, PIN_RXD);
 DFRobot_BC20_SW_Serial myBC20(&ss);
 #endif
 
+void Display_Location_Information() {
+
+  /*
+     UTC time of the anchor point
+  */
+  Serial.print("Time:\t\t");
+  Serial.print(sCLK.Year);
+  Serial.print("/");
+  Serial.print(sCLK.Month);
+  Serial.print("/");
+  Serial.print(sCLK.Day);
+  Serial.print("  ");
+  Serial.print(sCLK.Hour);
+  Serial.print("：");
+  Serial.print(sCLK.Minute);
+  Serial.print("：");
+  Serial.println(sCLK.Second);
+
+  Serial.print("Latitude:\t");
+  Serial.print(sGGNS.LatitudeVal, 6);
+  Serial.print(" deg ");
+  Serial.println(sGGNS.LatitudeDir);
+  Serial.print("Longitude:\t");
+  Serial.print(sGGNS.LongitudeVal, 6);
+  Serial.print(" deg ");
+  Serial.println(sGGNS.LongitudeDir);
+  Serial.print("Altitude:\t");
+  Serial.print(sGGNS.Altitude, 1);
+  Serial.println(" m");
+  Serial.print("Speed:\t\t");
+  Serial.print(sGGNS.Speed);
+  Serial.println(" km/h");
+  Serial.print("Heading:\t");
+  Serial.print(sGGNS.Heading);
+  Serial.println(" deg");
+  Serial.print("Status:\t\t");
+  Serial.println(sGGNS.FixStatus);
+  Serial.print("PDOP:\t\t");
+  Serial.println(sGGNS.PDOP);
+  Serial.print("HDOP:\t\t");
+  Serial.println(sGGNS.HDOP);
+  Serial.print("VDOP:\t\t");
+  Serial.println(sGGNS.VDOP);
+  Serial.println();
+}
+
+void Display_Satellite_Information() {
+  Serial.print(sSAT.NUM);
+  Serial.println(" in view.");
+  Serial.print(sSAT.USE);
+  Serial.println(" in used.");
+  Serial.print("PRN\t");
+  Serial.print("Elev(deg)\t");
+  Serial.print("Azim(deg)\t");
+  Serial.print("SNR(dBHz)\t");
+  Serial.print("SYS\t");
+  Serial.println("Used");
+  for (uint8_t i = 0; i < sSAT.NUM; i++) {
+    Serial.print(sSAT2.data[i].PRN);
+    Serial.print("\t");
+    Serial.print(sSAT2.data[i].Elev);
+    Serial.print("\t\t");
+    Serial.print(sSAT2.data[i].Azim);
+    Serial.print("\t\t");
+    Serial.print(sSAT2.data[i].SNR);
+    Serial.print("\t\t");
+    Serial.print(sSAT2.data[i].SYS);
+    Serial.print("\t");
+    Serial.println(sSAT2.data[i].Status);
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   myBC20.LED_OFF();
@@ -122,46 +192,13 @@ void setup() {
 
 void loop() {
 
-  myBC20.getQGNSSRD(NMEA_VTG);
-
-  /*
-     Course over ground (true), unit in degrees
+  /**
+     Is used to obtain the specified satellite information, and the parameter is used to specify the type of information to be obtained.
+     The parameter is selected as follows:
   */
-  Serial.print("Course over ground (true): ");
-  Serial.print(sVTG.GroundCourse_True());
-  Serial.println(" deg");
-
-  /*
-     Course over ground (magnetic), unit in degrees
-  */
-  Serial.print("Course over ground (magnetic): ");
-  Serial.print(sVTG.GroundCourse_Mag());
-  Serial.println(" deg");
-
-  /*
-     Speed over ground, unit in knots
-  */
-  Serial.print("Ground Speed (knots): ");
-  Serial.print(sVTG.GroundCourse_Knots());
-  Serial.println(" knots");
-
-  /*
-     Speed over ground, unit in km/h
-  */
-  Serial.print("Ground Speed (km/h): ");
-  Serial.print(sVTG.GroundCourse_Kmh());
-  Serial.println(" km/h");
-
-  /*
-     Positioning Mode
-     N - No fix
-     A - Autonomous GPS fix
-     D - Differential GPS fix
-  */
-  Serial.print("Positioning Mode: ");
-  Serial.println(sVTG.PositioningMode());
-  Serial.println();
-  Serial.println();
+  myBC20.getQGNSSRD();
+  Display_Location_Information();
+  Display_Satellite_Information();
   myBC20.clearGPS();
 
   myBC20.LED_ON();

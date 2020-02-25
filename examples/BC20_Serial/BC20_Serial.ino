@@ -1,7 +1,8 @@
 /*!
  * @file BC20_Serial.ino
- * @brief After the program download is complete,
- * @brief AT commands can be sent to the BC20 module via USB Serial.
+ * 
+ * @brief Send AT commands to the BC20 module via USB Serial.
+ * 
  * @n Commonly used AT commands:
  * @n  AT - AT command test
  * @n  AT+QRST=1 - Reset BC20
@@ -45,7 +46,10 @@
  * @date   2019-10-29
  * @get from https://www.dfrobot.com
  */
+ 
 #include "DFRobot_BC20.h"
+
+/*7 colors are available*/
 #define  RED 0
 #define  BLUE 1
 #define  GREEN 2
@@ -53,102 +57,108 @@
 #define  PURPLE 4
 #define  CYAN 5
 #define  WHITE 6
-/*
- *Use IIC for communication
- */
+
+/*Communication by IIC*/
 #define USE_IIC
 
-/*
- *Use SoftwareSerial port for communication
- */
+/*Communication by HardwareSerial*/
 //#define USE_HSERIAL
 
-/*
- *Use HardwareSerial  port for communication
- */
+/*Communication by SoftwareSerial*/
 //#define USE_SSERIAL
+
+
 /******************IIC******************/
 #ifdef USE_IIC
 /*
- * For general controllers. Communicate by IIC
- * Connect Instructions
- *    Controller     |    Module(BC20)
- *        SDA        |       D/T
- *        SCL        |       C/R
- *        GND        |       GND
- *     5V or 3V3     |       VCC
- *
- *
- * IIC_addr(A0,A1)
- *   0x30:(A0=0,A1=0)
- *   0x31:(A0=0,A1=1)
- *   0x32:(A0=1,A1=0)
- *   0x33:(A0=1,A1=1)
- */
+   For general controllers. Communicate by IIC
+   Connect Instructions
+      Controller     |    Module(BC20)
+          SDA        |       D/T
+          SCL        |       C/R
+          GND        |       GND
+       5V or 3V3     |       VCC
+
+   IIC address(A0,A1)
+     0x30:(A0=0,A1=0)
+     0x31:(A0=0,A1=1)
+     0x32:(A0=1,A1=0)
+     0x33:(A0=1,A1=1) default
+*/
 DFRobot_BC20_IIC myBC20(0x33);
+
 /******************HardwareSerial******************/
 #elif defined(USE_HSERIAL)
 /*
- * Connect Instructions
- * esp32      |               MEGA Series    |    Module(BC20)
- * IO17       |               D16(RX)        |       D/T
- * IO16       |               D17(TX)        |       C/R
- * GND        |               GND            |       GND
- * 5V(USB) or 3V3(battery)  | 5V or 3V3      |       VCC
- */
-//For MEGA2560/ESP32 HardwareSerial
+   For MEGA2560/ESP32 HardwareSerial
+   Connect Instructions
+   esp32      |               MEGA Series    |    Module(BC20)
+   IO17       |               D16(RX)        |       D/T
+   IO16       |               D17(TX)        |       C/R
+   GND        |               GND            |       GND
+   5V(USB) or 3V3(battery)  | 5V or 3V3      |       VCC
+*/
 #if defined(ARDUINO_ESP32_DEV)
 HardwareSerial Serial2(2);
 DFRobot_BC20_Serial myBC20(&Serial2);//ESP32HardwareSerial
 #else
 DFRobot_BC20_Serial myBC20(&Serial1);//others
 #endif
+
 /******************SoftwareSerial******************/
 #elif defined(USE_SSERIAL)
 /*
- *  Connect Instructions
- *      UNO     |    Module(BC20)
- *    PIN_RXD   |       D/T
- *    PIN_TXD   |       C/R
- *      GND     |       GND
- *   5V or 3V3  |       VCC
+    For Arduino Series SoftwareSerial
+    Connect Instructions
+        UNO     |    Module(BC20)
+      PIN_RXD   |       D/T
+      PIN_TXD   |       C/R
+        GND     |       GND
+     5V or 3V3  |       VCC
 */
 #define PIN_TXD   3
 #define PIN_RXD   4
-SoftwareSerial ss(PIN_TXD,PIN_RXD);
+SoftwareSerial ss(PIN_TXD, PIN_RXD);
 DFRobot_BC20_SW_Serial myBC20(&ss);
 #endif
 
-void setup(){
+void setup() {
   Serial.begin(115200);
-  Serial.println("Starting the BC20.Please wait. . . ");
+  myBC20.LED_OFF();
+
+  /*Initialize BC20*/
+  Serial.print("Starting the BC20.Please wait. . . ");
   myBC20.changeColor(RED);
-  while(!myBC20.powerOn()){
+  while (!myBC20.powerOn()) {
+    Serial.print(".");
     myBC20.LED_ON();
     delay(500);
     myBC20.LED_OFF();
-    delay(500);    
-    Serial.print(".");
+    delay(500);
   }
-  Serial.println("BC20 started successfully !");
-  myBC20.configSleepMode(eSleepMode_Disable);
-  /**  
-    * Deep Sleep Mode is automatically enable every time upon power up.
-    * When this mode is entered, BC20 will not respond any AT commands from ESP32
-    * myBC20.ConfigSleepMode(eSleepMode_Disable);
-    * Each AT command should begin with "AT" or "at" and end with "Carriage return".
-    * The commands can be upper-case or lower-case. ex. "AT+CSQ" or "at+csq".
-    * Serial.println("Enter AT commands:");
-   */
-}
-void loop(){
+  Serial.println("BC20 started successfully!");
+
   /**
-   * Receive data when it comes in and send it in characters when it needs to be sent
-   */
-  if(Serial.available()){
+   * Deep Sleep Mode is automatically enable every time upon power up.
+   * When this mode is entered, 
+   * BC20 will not respond any AT commands from the controller
+   * Disable sleep mode to ensure BC20 always responding AT commands
+  */
+  myBC20.configSleepMode(eSleepMode_Disable);
+
+  /**
+   * Each AT command should begin with "AT" or "at" and end with "Carriage return".
+   * The commands can be upper-case or lower-case. ex. "AT+CSQ" or "at+csq". 
+  */
+  Serial.println("Enter AT commands:");
+}
+
+void loop() {
+  /* Serial transparent transmission with BC20. */
+  if (Serial.available()) {
     myBC20.sendATCMDBychar((char)Serial.read());
   }
-  if(myBC20.available()){
+  if (myBC20.available()) {
     Serial.println(myBC20.readData());
   }
 }

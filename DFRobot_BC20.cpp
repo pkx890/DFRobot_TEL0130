@@ -19,8 +19,8 @@ sGSA_t sGSA;
 sRMC_t sRMC;
 sVTG_t sVTG;
 sCLK_t sCLK;
-#ifndef ARDUINO_AVR_UNO
 sGGNS_t sGGNS;
+#ifndef ARDUINO_AVR_UNO
 sSAT_t2 sSAT2;
 #endif
 sSAT_t sSAT;
@@ -1139,9 +1139,7 @@ String DFRobot_BC20 :: getQCCID(void){
     sendATCMD(GET_QCCID);
     receviceATCMD(300);
     getRecDataforNum(2,data);
-    CCID = (char *)data;
-    CCID = removeSthString("+QCCID: ",CCID);
-    CCID = GetSthfrontString("\r\n",CCID);
+    CCID = removeSthString("+QCCID: ",(char *)data);
     if(data != NULL){
         free(data);
 		data=NULL;
@@ -1292,6 +1290,13 @@ uint8_t DFRobot_BC20 :: getQGNSSRD(void){
 			ret=NULL;
 		}
 	}	
+    return 1;
+}
+#endif
+
+#ifdef ARDUINO_AVR_UNO
+uint8_t DFRobot_BC20 :: getQGNSSRD(void){
+    getQGNSSRD(NMEA_RMC);
     return 1;
 }
 #endif
@@ -2162,6 +2167,7 @@ bool DFRobot_BC20 :: connectServer(char connectID, char* clientID, char* UserNam
 			}
 			if(tempStr.equals("+QMTCONN: 0,0,0\r\n")){
 				this->mqttConneced = true;
+				delay(1000);
 				return true;
 			}
 		}
@@ -2241,12 +2247,10 @@ bool DFRobot_BC20 :: subTopic(char connectID, char msgID, char* topic, char qos)
 	tempdata=NULL;
     receviceATCMD(10000);
 	num=CheckRecData(AT_OK);
-	for(int i=0;i<5;i++)
+	delay(5000);
+	if(available())
 	{
-		if(available())
-		{
-			readData();
-		}
+		readData();
 	}
     return(num);
 }
@@ -2350,6 +2354,11 @@ void DFRobot_BC20 :: loop(){
 		tempStr=(char*)malloc(40);
 		if(tempStr==NULL)
 		{
+			if(ret!=NULL)
+			{
+				free(ret);
+				ret=NULL;
+			}			
 			free(tempStr);
 			return;
 		}
@@ -2361,6 +2370,19 @@ void DFRobot_BC20 :: loop(){
 		char* Topic;
 		char*a;
 		Topic=(char*)malloc(20);
+		if(Topic==NULL)
+		{
+			if(ret!=NULL)
+			{
+				free(ret);
+				ret=NULL;
+			}			
+			free(tempStr);
+			tempStr=NULL;
+			free(Topic);
+			Topic=NULL;			
+			return;			
+		}
 		memset(Topic,'\0',20);
 		char* RecData;
 		//connectID = (GetSthfrontString(",",tempStr)).toInt();
@@ -2371,23 +2393,28 @@ void DFRobot_BC20 :: loop(){
 		memcpy(Topic,a,strlen(a));
 		tempStr = removeSthString("\",\"",tempStr);
 		RecData = GetSthfrontString("\"\r\n",tempStr);
-		if(callback){
+		if(callback!=NULL){
 			callback((char *)(Topic),(uint8_t *)(RecData),strlen(RecData));
-		} 
+		}
 		free(Topic);
 		Topic=NULL;
-	}else if(indexOf(tempStr,"ENTER PSM") != -1){
-		if(PSMcallback){
-			PSMcallback();
-		} 
-	} 
 		if(ret!=NULL)
 		{
 			free(ret);
 			ret=NULL;
 		}
 		free(tempStr);
-		tempStr=NULL;
+		tempStr=NULL;		
+	}else{
+		if(ret!=NULL)
+		{
+			free(ret);
+			ret=NULL;
+		}			
+			free(tempStr);
+			return;			
+		} 
+
 	}	
 }
 
@@ -2758,6 +2785,7 @@ void DFRobot_BC20::controlLED(String str)
 
 void DFRobot_BC20::LED_ON()
 {
+	LED_OFF();
 	String str;
 	str="LED_"+(this->color)+"_ON";
 	controlLED(str);
@@ -2765,8 +2793,20 @@ void DFRobot_BC20::LED_ON()
 void DFRobot_BC20::LED_OFF()
 {
 	String str;
-	str="LED_"+(this->color)+"_OFF";
+	str="LED_R_OFF";
 	controlLED(str);
+	str="LED_G_OFF";
+	controlLED(str);
+	str="LED_B_OFF";
+	controlLED(str);
+	str="LED_Y_OFF";
+	controlLED(str);
+	str="LED_P_OFF";
+	controlLED(str);
+	str="LED_C_OFF";
+	controlLED(str);
+	str="LED_W_OFF";
+	controlLED(str);	
 }
 void DFRobot_BC20::changeColor(uint8_t newColor)
 {
@@ -2809,21 +2849,24 @@ void DFRobot_BC20::LEDFlash(String Color)
 	controlLED(str2);
 }
 
-void DFRobot_BC20::stmLowpower()
+bool DFRobot_BC20::stmLowpower()
 {
 	controlLED("LED_G_ON");
 	delay(10);
 	controlLED("LED_G_OFF");
 	delay(10);
 	sendATCMD("DSLEEP");
-	delay(10);	
+	delay(10);
+	return(checkBC20());	
 }
 bool DFRobot_BC20::stmWakeup(uint8_t Awake_Pin)
 {
 	pinMode(Awake_Pin,OUTPUT);
 	digitalWrite(Awake_Pin,LOW);
-	delay(1);
+	delay(100);
 	digitalWrite(Awake_Pin,HIGH);
+	delay(100);
+	digitalWrite(Awake_Pin,LOW);
 	return(checkBC20());
 }
 DFRobot_BC20_Serial::DFRobot_BC20_Serial(HardwareSerial*SSerial1)
@@ -3197,7 +3240,7 @@ if((num>5)&&(flag==0))
 	tempData="OK\r\n";
 }
 #endif	
-		if((tempData.indexOf("\r\n") != -1)){			
+		if((tempData.indexOf("\r\n") != -1)){	
 			if(tempData.length() > 0)
 			{
 				do{

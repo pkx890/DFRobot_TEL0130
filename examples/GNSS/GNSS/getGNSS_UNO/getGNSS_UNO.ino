@@ -1,12 +1,10 @@
 /*!
-   @file getVTG.ino
-   @brief Print all the VTG info available in BC20.
-   @n VTG: Course Over Ground and Ground Speed.
-   @n The actual course and speed relative to the ground
-
+   @file getGNSS.ino
+   @brief Print all the GNSS info available in BC20.
+   @Compiling this DEMO DOSE NOT work on Arduino UNO, requiring a Dev. board with more RAM.
    @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
    @licence     The MIT License (MIT)
-   @author      [PengKaixing](kaixing.peng@dfrobot.com)
+   @author      [Peng Kaixing](kaixing.peng@dfrobot.com)
    @version  V1.0
    @date  2019-10-29
    @get from https://www.dfrobot.com
@@ -24,9 +22,6 @@
 
 /*Communication by IIC*/
 #define USE_IIC
-
-/*Communication by HardwareSerial*/
-//#define USE_HSERIAL
 
 /*Communication by SoftwareSerial*/
 //#define USE_SSERIAL
@@ -51,24 +46,6 @@
 */
 DFRobot_BC20_IIC myBC20(0x33);
 
-/******************HardwareSerial******************/
-#elif defined(USE_HSERIAL)
-/*
-   For MEGA2560/ESP32 HardwareSerial
-   Connect Instructions
-   esp32      |               MEGA Series    |    Module(BC20)
-   IO17       |               D16(RX)        |       D/T
-   IO16       |               D17(TX)        |       C/R
-   GND        |               GND            |       GND
-   5V(USB) or 3V3(battery)  | 5V or 3V3      |       VCC
-*/
-#if defined(ARDUINO_ESP32_DEV)
-HardwareSerial Serial2(2);
-DFRobot_BC20_Serial myBC20(&Serial2);//ESP32HardwareSerial
-#else
-DFRobot_BC20_Serial myBC20(&Serial1);//others
-#endif
-
 /******************SoftwareSerial******************/
 #elif defined(USE_SSERIAL)
 /*
@@ -85,6 +62,35 @@ DFRobot_BC20_Serial myBC20(&Serial1);//others
 SoftwareSerial ss(PIN_TXD, PIN_RXD);
 DFRobot_BC20_SW_Serial myBC20(&ss);
 #endif
+
+void Display_Location_Information() {
+
+  /*
+     UTC time of the anchor point
+  */
+  Serial.print("Time:\t\t");
+  Serial.print(sCLK.Year);
+  Serial.print("/");
+  Serial.print(sCLK.Month);
+  Serial.print("/");
+  Serial.print(sCLK.Day);
+  Serial.print("  ");
+  Serial.print(sCLK.Hour);
+  Serial.print("：");
+  Serial.print(sCLK.Minute);
+  Serial.print("：");
+  Serial.println(sCLK.Second);
+
+  Serial.print("Latitude:\t");
+  Serial.print(sGGNS.LatitudeVal());
+  Serial.println(sGGNS.LatitudeDir());
+  Serial.print("Longitude:\t");
+  Serial.print(sGGNS.LongitudeVal());
+  Serial.println(sGGNS.LongitudeDir());
+  Serial.print("Altitude:\t");
+  Serial.print(sGGNS.Speed());
+  Serial.println(" km/h");
+}
 
 void setup() {
   Serial.begin(115200);
@@ -121,47 +127,8 @@ void setup() {
 }
 
 void loop() {
-
-  myBC20.getQGNSSRD(NMEA_VTG);
-
-  /*
-     Course over ground (true), unit in degrees
-  */
-  Serial.print("Course over ground (true): ");
-  Serial.print(sVTG.GroundCourse_True());
-  Serial.println(" deg");
-
-  /*
-     Course over ground (magnetic), unit in degrees
-  */
-  Serial.print("Course over ground (magnetic): ");
-  Serial.print(sVTG.GroundCourse_Mag());
-  Serial.println(" deg");
-
-  /*
-     Speed over ground, unit in knots
-  */
-  Serial.print("Ground Speed (knots): ");
-  Serial.print(sVTG.GroundCourse_Knots());
-  Serial.println(" knots");
-
-  /*
-     Speed over ground, unit in km/h
-  */
-  Serial.print("Ground Speed (km/h): ");
-  Serial.print(sVTG.GroundCourse_Kmh());
-  Serial.println(" km/h");
-
-  /*
-     Positioning Mode
-     N - No fix
-     A - Autonomous GPS fix
-     D - Differential GPS fix
-  */
-  Serial.print("Positioning Mode: ");
-  Serial.println(sVTG.PositioningMode());
-  Serial.println();
-  Serial.println();
+  myBC20.getQGNSSRD();
+  Display_Location_Information();
   myBC20.clearGPS();
 
   myBC20.LED_ON();

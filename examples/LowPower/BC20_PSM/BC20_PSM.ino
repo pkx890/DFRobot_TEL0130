@@ -221,10 +221,41 @@ void setup() {
    * myBC20.setPSMMode(ePSM_OFF); 
    */
 
-//BC20 serial print "QATWAKEUP" when it is woken up from PSM
+  //BC20 serial print "QATWAKEUP" when it is woken up from PSM
   if (myBC20.setQATWAKEUP(ON)) {
     Serial.println("set QATWAKEUP\r\n");
   }
+  nowTime=millis();
+}
+
+void loop() {
+  /* 
+   * Each AT command should begin with "AT" or "at" and end with "Carriage return".
+   * The commands can be upper-case or lower-case. ex. "AT+CSQ" or "at+csq". 
+   */
+  Serial.println("Enter AT commands:");  
+  delay(2000);
+  
+  while(millis()-nowTime<5000){  
+    if(Serial.available()){
+      tempdata +=(char)Serial.read();
+      nowTime=millis();
+    }
+  }
+  Serial.println("the AT commands is:");
+  Serial.print("AT+");
+  Serial.println(tempdata);
+  Serial.println("");
+  
+  if(tempdata.length()>0){
+    myBC20.sendATCMD(tempdata);
+    tempdata="";
+  }
+  
+  if(myBC20.available()){
+    Serial.println(myBC20.readData());
+    Serial.println("");
+  } 
   
   /*
    *  Deep/Light Sleep Mode.
@@ -237,51 +268,27 @@ void setup() {
    *
    */
   if (myBC20.configSleepMode(eSleepMode_DeepSleep)) {
-    Serial.println("enable sleep");
-  }
-  //STM32 enters low power mode
-  myBC20.stmLowpower();
-  nowTime=millis();
-  /* 
-   * Each AT command should begin with "AT" or "at" and end with "Carriage return".
-   * The commands can be upper-case or lower-case. ex. "AT+CSQ" or "at+csq". 
-   */
-  Serial.println("Enter AT commands:");
-}
-
-void loop() {
-  /**
-   * STM32 and BC20 will go into low power mode every 5 seconds
-   */
-  if(millis()-nowTime>5000){
-    Serial.println("Entering PSM!");
-    myBC20.configSleepMode(eSleepMode_DeepSleep);
-    myBC20.stmLowpower();
-    nowTime=millis();
-  }
-  
-  if(Serial.available()){
-    tempdata+=(char)Serial.read();
-  }
-  
-  if(tempdata.length()>0){
-    myBC20.sendATCMD(tempdata);
-    tempdata="";
-  }
-  
-  if(myBC20.available()){
-    Serial.println(myBC20.readData());
+    Serial.println("BC20 enturn PSM!");
+  }  
+  if(!myBC20.stmLowpower()){
+    Serial.println("STM32 enturn PSM!"); 
   } 
+  Serial.println("");
+  delay(3000);
   
   /**
    * Provide the IRQ with a rising edge pulse
    */
   myBC20.stmWakeup(WAKEUP_PIN);
-  Serial.println("Wake up from PSM!");
+
   if(myBC20.BC20Wakeup()){
     Serial.println("quit PSM success!");
   }else{
-    Serial.println("quit PSM fail!");
-  }    
-  delay(1000);
+     while(1){
+       Serial.println("quit PSM fail!");
+       delay(1000);
+     }
+   }    
+  Serial.println("");
+  nowTime=millis();
 }

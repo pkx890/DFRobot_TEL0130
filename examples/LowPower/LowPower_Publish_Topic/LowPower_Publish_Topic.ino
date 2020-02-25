@@ -158,51 +158,39 @@ void setup(){
   Serial.println("Server is available!");   
   ConnectCloud();
   Serial.println("Connect Cloud success!");
-
-  /* 
-   *BC20 enter PSM 
-   */
-  if (myBC20.setPSMMode(ePSM_ON)) {
-    Serial.println("set psm OK");
-  }
-  
+ 
   /* 
    *BC20 serial print "QATWAKEUP" when it is woken up from PSM
    */  
   if (myBC20.setQATWAKEUP(ON)) {
     Serial.println("set QATWAKEUP");
   }
+}
+
+void loop(){ 
+  Serial.println("send message to cloud...");
+  myBC20.publish(pubTopic,"hello");  
+  
   /* 
    *Enable entering PSM.
    *When PSM is entered, BC20 will not receive any commands or signal from the moblie station (i.e. not controllable)
    *However, when during DRX/eDRX, BC20 will still response to AT commands or NB signal.
    */ 
   if (myBC20.configSleepMode(eSleepMode_DeepSleep)) {
-    Serial.println("enable BC20 sleep");
+    Serial.println("BC20 enturn PSM!");
   }
-  myBC20.stmLowpower();
-}
-
-void loop(){
-  if(timeout>5){
-    myBC20.stmWakeup(WAKEUP_PIN);
-    while (!myBC20.BC20Wakeup()) {
-      Serial.print("BC20Wakeup...");
-      delay(1000);
-    }
-    Serial.println();
-    Serial.println("send message to cloud...");
-    myBC20.publish(pubTopic,"hello");
+  if(!myBC20.stmLowpower()){
+    Serial.println("stm32 enturn PSM!");
+  }  
+  delay(3000);
+  myBC20.stmWakeup(WAKEUP_PIN);
   
-    /* 
-     *BC20 enter PSM
-     *STM32 enter PSM
-     */  
-    myBC20.stmLowpower();
-    timeout=0;
+  if(myBC20.BC20Wakeup()){
+    Serial.println("quit PSM success!");
   }else{
-   Serial.println("It's in sleep mode");
-   delay(1000);
-   timeout++;
-  }
+    while(1){
+      Serial.println("quit PSM fail!"); 
+      delay(1000);     
+    }
+  } 
 }
