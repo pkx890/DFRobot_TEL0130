@@ -3263,7 +3263,6 @@ if((num>5)&&(flag==0))
 		if((tempData.indexOf("\r\n") != -1)){
 			if(tempData.length() > 0)
 			{
-				DBG(tempData);
 				do{
 				tempInt = tempData.indexOf("\r\n");
 				if(tempInt != -1){
