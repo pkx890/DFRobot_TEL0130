@@ -9,7 +9,6 @@
 #endif
 
 #include "Wire.h"
-#include "switch.h"
 #include "EEPROM.h"
 #define DBG(sth)   Serial.print("DBG:");Serial.print(__LINE__);Serial.print("--------");Serial.println(sth)
 #define ON   1
@@ -909,30 +908,37 @@ typedef struct
 }sCLK_t;
 extern sCLK_t sCLK;
 
-#ifdef ARDUINO_AVR_UNO
+#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO) 
 typedef struct
 {
     uint8_t NUM;
-	char*LatitudeVal(){
-		return (sRMC.LatitudeVal());
-	}
+	float LatitudeVal;
+	float LongitudeVal;
 	char*LatitudeDir(){
 		return (sRMC.LatitudeDir());
 	}    
-	char*LongitudeVal(){
-		return (sRMC.LongitudeVal());
-	}
 	char*LongitudeDir(){
 		return (sRMC.LongitudeDir());
 	}
+	char*Heading(){
+		return (sRMC.GroundHeading());
+	}	
 	char*Speed(){
 		return (sRMC.GroundSpeed());
 	}
+	char*PositioningMode(){
+		char*a=sRMC.PositioningMode();
+		if(strcmp(a,'N')==0){
+			return ("No fix");
+		}else{
+			return a;
+		}		
+	}	
 }sGGNS_t;
 extern sGGNS_t sGGNS;
 #endif
 
-#ifndef ARDUINO_AVR_UNO
+#if !defined(ARDUINO_AVR_UNO) && !defined(ARDUINO_AVR_LEONARDO)
 struct sGSV2
 {
     String PRN;
@@ -1063,7 +1069,8 @@ class DFRobot_BC20{
     bool mqttConneced = false;
     bool powerOn(void);
     bool checkBC20(void);
-	void clearGPS();
+    bool checkStmStauts(void);
+    void clearGPS();
     bool checkNBCard(void);
     void getGPS(void);
     void getPII(void);
@@ -1190,6 +1197,7 @@ class DFRobot_BC20{
 	void LED_ON();
 	void LED_OFF();
 	void changeColor(uint8_t newColor);
+	void controlLED(char * chr);
 	void controlLED(String str);
 	void LEDFlash(String Color);
 	bool stmLowpower();

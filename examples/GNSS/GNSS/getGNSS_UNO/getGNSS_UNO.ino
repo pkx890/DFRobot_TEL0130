@@ -1,7 +1,7 @@
 /*!
    @file getGNSS.ino
    @brief Print all the GNSS info available in BC20.
-   @Compiling this DEMO DOSE NOT work on Arduino UNO, requiring a Dev. board with more RAM.
+   @Compiling this DEMO work on Arduino UNO
    @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
    @licence     The MIT License (MIT)
    @author      [Peng Kaixing](kaixing.peng@dfrobot.com)
@@ -59,7 +59,7 @@ DFRobot_BC20_IIC myBC20(0x33);
 */
 #define PIN_TXD   3
 #define PIN_RXD   4
-SoftwareSerial ss(PIN_TXD, PIN_RXD);
+SoftwareSerial ss(PIN_RXD,PIN_TXD);
 DFRobot_BC20_SW_Serial myBC20(&ss);
 #endif
 
@@ -82,14 +82,24 @@ void Display_Location_Information() {
   Serial.println(sCLK.Second);
 
   Serial.print("Latitude:\t");
-  Serial.print(sGGNS.LatitudeVal());
+  Serial.print(sGGNS.LatitudeVal);
+  Serial.print(" ");  
   Serial.println(sGGNS.LatitudeDir());
   Serial.print("Longitude:\t");
-  Serial.print(sGGNS.LongitudeVal());
+  Serial.print(sGGNS.LongitudeVal);
+  Serial.print(" ");  
   Serial.println(sGGNS.LongitudeDir());
-  Serial.print("Altitude:\t");
+  Serial.print("Speed:\t\t");  
   Serial.print(sGGNS.Speed());
-  Serial.println(" km/h");
+  Serial.println(" km/h");  
+  /*
+     Positioning Mode
+     N - No fix
+     A - Autonomous GPS fix
+     D - Differential GPS fix
+  */  
+  Serial.print("Positioning Mode:\t");
+  Serial.println(sGGNS.PositioningMode());  
 }
 
 void setup() {
@@ -134,5 +144,9 @@ void loop() {
   myBC20.LED_ON();
   delay(500);
   myBC20.LED_OFF();
+#ifndef ARDUINO_ESP32_DEV  
+  delay(500);
+#else 
   delay(5000);
+#endif
 }

@@ -49,9 +49,9 @@ void DFRobot_Iot :: init(String OneNetServer,
     setConfig();
 }
 /*Use Aliyun cloud platform*/
-void DFRobot_Iot :: init(char* AliyunServer, char* AliProductKey, 
-                            char* AliClientId, char* AliDeviceName, 
-                            char* AliDeviceSecret, uint16_t AliPort)
+void DFRobot_Iot :: init(String AliyunServer, String AliProductKey, 
+                            String AliClientId, String AliDeviceName, 
+                            String AliDeviceSecret, uint16_t AliPort)
                             {
     this->_MQTTSERVER    = AliyunServer;
     this->_ProductKey    = AliProductKey;
@@ -63,17 +63,6 @@ void DFRobot_Iot :: init(char* AliyunServer, char* AliProductKey,
     setConfig();
 }
 /*alculate the connection username and password, etc.*/
-void DFRobot_Iot::clearMemary()
-{
-	free(this->_mqttServer);
-	_mqttServer=NULL;
-	free(this->_clientId);
-	_clientId=NULL;
-	free(this->_username);
-	_username=NULL;
-	free(this->_password);
-	_password=NULL;	
-}
 void DFRobot_Iot :: setConfig(){
     if(this->_UseServer == ONENET){
         String tempSERVER = this->_MQTTSERVER;
@@ -97,7 +86,7 @@ void DFRobot_Iot :: setConfig(){
     
         String tempPass = this->_ApiKey;
         if(this->_password == NULL){
-            this->_password = (char *) malloc(tempPass.length()+1);
+            this->_password = (char *) malloc(tempPass.length());
         }
         strcpy(this->_password,tempPass.c_str());
     }else if(this->_UseServer == ALIYUN){
@@ -128,7 +117,7 @@ void DFRobot_Iot :: setConfig(){
         len = tempName.length();
         this->_username = (char * )malloc(len);
         strcpy(this->_username,tempName.c_str());
-    
+	
         strcpy(tempData,Data.c_str());
         strcpy(tempSecret,this->_DeviceSecret.c_str());
         MyHmac_Sha1.HMAC_SHA1((byte * )tempData,Data.length(),(byte * )tempSecret,this->_DeviceSecret.length(),tempPassWord);

@@ -20,7 +20,7 @@ sRMC_t sRMC;
 sVTG_t sVTG;
 sCLK_t sCLK;
 sGGNS_t sGGNS;
-#ifndef ARDUINO_AVR_UNO
+#if !defined(ARDUINO_AVR_UNO) && !defined(ARDUINO_AVR_LEONARDO)
 sSAT_t2 sSAT2;
 #endif
 sSAT_t sSAT;
@@ -326,6 +326,13 @@ bool DFRobot_BC20::checkBC20(void){
     return CheckRecData(AT_OK);
 }
 
+bool DFRobot_BC20::checkStmStauts(void){
+    flushBC20Serial();
+    sendATCMD("STMSTATUS");
+    receviceATCMD(300);
+    return CheckRecData(AT_OK);
+}
+
 bool DFRobot_BC20::checkNBCard(void){
     bool ret = false;
     sendATCMD(CHECK_NB_CARD);
@@ -381,12 +388,18 @@ bool DFRobot_BC20 :: saveConfig(){/*Power loss saves the current configuration*/
 }
 
 void DFRobot_BC20 :: getPII(void){
-    sendATCMD(GET_PII);
-    receviceATCMD(300);
+    //sendATCMD(GET_PII);
+/* 			Wire.beginTransmission(0x33);
+			Wire.write(0x00);
+			Wire.write("ATI",3);
+			Wire.write(0x0D);
+			Wire.write(0x0A);
+			Wire.endTransmission(); */	
+/*     receviceATCMD(300);
     getRecDataforNum(2,sPII.company);
     getRecDataforNum(3,sPII.deviceType);
     getRecDataforNum(4,sPII.Revision);
-    flushBC20Serial();
+    flushBC20Serial(); */
 }
 
 void DFRobot_BC20 :: getMI(void){
@@ -1218,7 +1231,7 @@ bool DFRobot_BC20 :: setQSCLK(uint8_t mode){
 
 bool DFRobot_BC20 :: setQFOTADL(String url){
     flushBC20Serial();
-    sendATCMD("AT+QFOTADL=\""+url+"\"");
+    sendATCMD((char*)("QFOTADL=\"http://download3.dfrobot.com.cn/nbtest/BC20NAR01A09.bin\""));
     return CheckRecData(AT_OK);
 }
 uint8_t DFRobot_BC20 :: getQGNSSC(void){
@@ -1253,7 +1266,7 @@ static float Longitude_conversion(String str){
     }
     return temp;
 }
-#ifndef ARDUINO_AVR_UNO
+#if !defined(ARDUINO_AVR_UNO) && !defined(ARDUINO_AVR_LEONARDO)
 uint8_t DFRobot_BC20 :: getQGNSSRD(void){
     getQGNSSRD(NMEA_RMC);
     sGGNS.LatitudeVal = Longitude_conversion(sRMC.LatitudeVal());
@@ -1294,9 +1307,11 @@ uint8_t DFRobot_BC20 :: getQGNSSRD(void){
 }
 #endif
 
-#ifdef ARDUINO_AVR_UNO
+#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)
 uint8_t DFRobot_BC20 :: getQGNSSRD(void){
     getQGNSSRD(NMEA_RMC);
+	sGGNS.LatitudeVal = Longitude_conversion(sRMC.LatitudeVal());
+	sGGNS.LongitudeVal = Longitude_conversion(sRMC.LongitudeVal());
     return 1;
 }
 #endif
@@ -1533,7 +1548,7 @@ bool DFRobot_BC20 :: getQGNSSRD(char* cmd){
 					{
 						sSAT.NUM=6;
 					}
-#ifdef ARDUINO_AVR_UNO
+#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)
 					if(sSAT.NUM>11)
 					sSAT.NUM=11;
 #endif					
@@ -2184,7 +2199,6 @@ bool DFRobot_BC20 :: setServer(char* IPAddress, char* port, char connectID){
         closeMQTT(0);
         delay(1000);
     }
-	//openMQTT(connectID,IPAddress,port);
     return true;
 }
 
@@ -2278,7 +2292,7 @@ bool DFRobot_BC20 :: unSubTopic(char connectID, char msgID, char* topic){
     flushBC20Serial();
     sendATCMD((char*)tempdata);
 	free(tempdata);	
-    receviceATCMD(10000);
+    receviceATCMD(5000);
     return CheckRecData(AT_OK);
 }
 bool DFRobot_BC20::publish(char* topic,char* msg){
@@ -2424,7 +2438,8 @@ bool DFRobot_BC20::configSleepMode(eSleepMode_t mode){
 
 bool DFRobot_BC20::BC20Wakeup(){
     flushBC20Serial();
-	sendATCMD("WakeUp");
+    sendATCMD("WakeUp");
+    delay(300);
     return(checkBC20());
 }
 
@@ -2481,9 +2496,11 @@ bool DFRobot_BC20::setPSMMode(ePSM_t status){
 	strdata[6]=s;
 	//memcpy(strdata+6,(char)status,1);
 	memcpy(strdata+7,",,,\"",4);
-	memcpy(strdata+11,"10000100",8);
+	memcpy(strdata+11,"10000010",8);
+	//memcpy(strdata+11,"01000011",8);
 	memcpy(strdata+19,"\",\"",3);
-	memcpy(strdata+22,"00000101",8);
+	//memcpy(strdata+22,"01000011",8);
+	memcpy(strdata+22,"00010000",8);
 	memcpy(strdata+30,"\"",1);
     flushBC20Serial();
 	sendATCMD(strdata);
@@ -2783,6 +2800,11 @@ void DFRobot_BC20::controlLED(String str)
 	sendATCMD(str);
 }
 
+void DFRobot_BC20::controlLED(char * str)
+{
+	sendATCMD((char *)str);
+}
+
 void DFRobot_BC20::LED_ON()
 {
 	LED_OFF();
@@ -2792,19 +2814,7 @@ void DFRobot_BC20::LED_ON()
 }
 void DFRobot_BC20::LED_OFF()
 {
-	String str;
-	str="LED_R_OFF";
-	controlLED(str);
-	str="LED_G_OFF";
-	controlLED(str);
-	str="LED_B_OFF";
-	controlLED(str);
-	str="LED_Y_OFF";
-	controlLED(str);
-	str="LED_P_OFF";
-	controlLED(str);
-	str="LED_C_OFF";
-	controlLED(str);
+	char* str;
 	str="LED_W_OFF";
 	controlLED(str);	
 }
@@ -2857,7 +2867,7 @@ bool DFRobot_BC20::stmLowpower()
 	delay(10);
 	sendATCMD("DSLEEP");
 	delay(10);
-	return(checkBC20());	
+	return(checkBC20());
 }
 bool DFRobot_BC20::stmWakeup(uint8_t Awake_Pin)
 {
@@ -2867,12 +2877,12 @@ bool DFRobot_BC20::stmWakeup(uint8_t Awake_Pin)
 	digitalWrite(Awake_Pin,HIGH);
 	delay(100);
 	digitalWrite(Awake_Pin,LOW);
-	return(checkBC20());
+	return(checkStmStauts());
 }
 DFRobot_BC20_Serial::DFRobot_BC20_Serial(HardwareSerial*SSerial1)
 :SSerial(SSerial1)
 {
-	SSerial->begin(115200);
+	SSerial->begin(9600);
 }
 
 void DFRobot_BC20_Serial::sendATCMD(String str){
@@ -2973,7 +2983,7 @@ DFRobot_BC20_IIC::DFRobot_BC20_IIC(uint8_t addr)
 	Wire.begin();
 }
 void DFRobot_BC20_IIC::sendATCMD(char* str){
-	int a;
+	int count=0;
 	uint8_t str_len=strlen(str);
 	uint8_t* tempdata;
 	uint8_t IIC_len=30;
@@ -2986,21 +2996,26 @@ void DFRobot_BC20_IIC::sendATCMD(char* str){
     if(strlen(str)> 0){
 		memcpy(tempdata,"AT+",3);
 		memcpy(tempdata+3,str,str_len);	
-		if(str_len>IIC_len){	
-			Wire.beginTransmission(IIC_addr);
-			Wire.write(0x00);
-			Wire.write(tempdata,IIC_len);
-			Wire.endTransmission();	
+		str_len+=3;
+		if(str_len>IIC_len){
+			while(str_len>IIC_len){
+				Wire.beginTransmission(IIC_addr);
+				Wire.write(0x00);
+				Wire.write(tempdata+IIC_len*count,IIC_len);
+				Wire.endTransmission();
+				count++;
+				str_len-=IIC_len;				
+			}				
 			Wire.beginTransmission(IIC_addr);
 			Wire.write(0x00);			
-			Wire.write(tempdata+IIC_len,str_len+3-IIC_len);
+			Wire.write(tempdata+IIC_len*count,str_len);
 			Wire.write(0x0D);
 			Wire.write(0x0A);
 			Wire.endTransmission();
 		}else{
 			Wire.beginTransmission(IIC_addr);
 			Wire.write(0x00);
-			Wire.write(tempdata,str_len+3);				
+			Wire.write(tempdata,str_len);				
 			Wire.write(0x0D);
 			Wire.write(0x0A);
 			Wire.endTransmission();		
@@ -3054,6 +3069,7 @@ void DFRobot_BC20_IIC::sendATCMD(String str){
 		Wire.write(0x0A);
 		Wire.endTransmission();		
     } 
+	delay(500);
 }
 
 void DFRobot_BC20_IIC::sendATCMDBychar(char str){
@@ -3061,6 +3077,7 @@ void DFRobot_BC20_IIC::sendATCMDBychar(char str){
 	Wire.write(0x00);
 	Wire.write(str);
 	Wire.endTransmission();
+	delay(500);
 }
 
 void DFRobot_BC20_IIC::sendATCMD(String str,uint8_t num){
@@ -3074,6 +3091,7 @@ void DFRobot_BC20_IIC::sendATCMD(String str,uint8_t num){
 	Wire.write(0x0D);
 	Wire.write(0x0A);
 	Wire.endTransmission();	
+	delay(500);
 }
 
 void DFRobot_BC20_IIC::sendATCMD(String str,String cmd){
@@ -3087,6 +3105,7 @@ void DFRobot_BC20_IIC::sendATCMD(String str,String cmd){
 	Wire.write(0x0D);
 	Wire.write(0x0A);
 	Wire.endTransmission();	
+	delay(500);
 }
 
 void DFRobot_BC20_IIC::sendATCMD(uint8_t num){
@@ -3096,6 +3115,7 @@ void DFRobot_BC20_IIC::sendATCMD(uint8_t num){
 	Wire.write(0x0D);
 	Wire.write(0x0A);
 	Wire.endTransmission();
+	delay(500);
 }
 
 bool DFRobot_BC20_IIC::available(void)
@@ -3176,7 +3196,7 @@ void DFRobot_BC20_IIC::receviceATCMD(uint32_t timeout){//Receive the command dat
 		Wire.endTransmission();		
 		Wire.requestFrom(IIC_addr,1);
 		len = Wire.read();
-#ifdef ARDUINO_AVR_UNO		
+#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)		
 		if(len>0)
 		{
 			num++;			
@@ -3202,7 +3222,7 @@ void DFRobot_BC20_IIC::receviceATCMD(uint32_t timeout){//Receive the command dat
 				if(len > IIC_Len){		
 					Wire.requestFrom(IIC_addr,IIC_Len);
 					for(int i=0;i<IIC_Len;i++){
-#ifdef ARDUINO_AVR_UNO						
+#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)						
 						if(num<7){
 							tempData+=(char)Wire.read();
 						}else{
@@ -3219,7 +3239,7 @@ void DFRobot_BC20_IIC::receviceATCMD(uint32_t timeout){//Receive the command dat
 				}else{
 					Wire.requestFrom(IIC_addr,len);
 					for(int i=0;i<len;i++){
-#ifdef ARDUINO_AVR_UNO						
+#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)						
 						if(num<7){
 							tempData+=(char)Wire.read();
 						}else{
@@ -3234,18 +3254,19 @@ void DFRobot_BC20_IIC::receviceATCMD(uint32_t timeout){//Receive the command dat
 				if((tempData.indexOf("\r\n") != -1))
 				break;
 			}
-#ifdef ARDUINO_AVR_UNO				
+#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)				
 if((num>5)&&(flag==0))
 {
 	tempData="OK\r\n";
 }
 #endif	
-		if((tempData.indexOf("\r\n") != -1)){	
+		if((tempData.indexOf("\r\n") != -1)){
 			if(tempData.length() > 0)
 			{
+				DBG(tempData);
 				do{
 				tempInt = tempData.indexOf("\r\n");
-				if(tempInt != -1){					
+				if(tempInt != -1){
 					cuappEnqueue((uint8_t *)((tempData.substring(0,tempInt+2)).c_str()),tempInt+2,tempNum);						
 					tempNum ++;
 					if((tempData.indexOf("OK\r\n") != -1))					
@@ -3266,10 +3287,11 @@ if((num>5)&&(flag==0))
 DFRobot_BC20_SW_Serial::DFRobot_BC20_SW_Serial(SoftwareSerial* ss)
 :SSerial(ss)
 {
-	SSerial->begin(115200);
+	SSerial->begin(9600);
 }
 
 void DFRobot_BC20_SW_Serial::sendATCMD(char* str){
+	
 	if(strlen(str) > 0){
         SSerial->print("AT+");
 		SSerial->println(str);
@@ -3280,6 +3302,7 @@ void DFRobot_BC20_SW_Serial::sendATCMD(char* str){
 }
 
 void DFRobot_BC20_SW_Serial::sendATCMD(String str){
+	
     if(str.length() > 0){
         SSerial->println("AT+"+str);
     }else{
@@ -3335,7 +3358,7 @@ String DFRobot_BC20_SW_Serial::readData()
 
 void DFRobot_BC20_SW_Serial::receviceATCMD(uint32_t timeout){	
     String tempData="";
-#ifdef ARDUINO_AVR_UNO	
+#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)
 	Flag=1;
 	uint8_t counter=5;
 #else

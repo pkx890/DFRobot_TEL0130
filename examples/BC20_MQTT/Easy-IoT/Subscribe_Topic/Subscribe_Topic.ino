@@ -24,16 +24,16 @@
 #define  WHITE 6
 
 /*Configure device certificate information*/
-char* Iot_id = "HJZv1ZFRSQ";
+char* Iot_id = "Cv3YouPZR";
 char* Client_ID  = "1234";
-char* Iot_pwd    = "ByfP1-YABX";
+char* Iot_pwd    = "CD3YTXEZRz";
 
 /*Configure the domain name and port number*/
 char* EasyIot_SERVER = "182.254.130.180";
 char* PORT = "1883";
 
 /*Set the Topic you need to publish to*/
-char* subTopic = "JbG9-uBZg";
+char* subTopic = "QjREoXEZg";
 
 /*Communication by IIC*/
 #define USE_IIC
@@ -70,8 +70,8 @@ DFRobot_BC20_IIC myBC20(0x33);
    For MEGA2560/ESP32 HardwareSerial
    Connect Instructions
    esp32      |               MEGA Series    |    Module(BC20)
-   IO17       |               D16(RX)        |       D/T
-   IO16       |               D17(TX)        |       C/R
+   IO16       |               D17(RX)        |       D/T
+   IO17       |               D16(TX)        |       C/R
    GND        |               GND            |       GND
    5V(USB) or 3V3(battery)  | 5V or 3V3      |       VCC
 */
@@ -79,7 +79,7 @@ DFRobot_BC20_IIC myBC20(0x33);
 HardwareSerial Serial2(2);
 DFRobot_BC20_Serial myBC20(&Serial2);//ESP32HardwareSerial
 #else
-DFRobot_BC20_Serial myBC20(&Serial1);//others
+DFRobot_BC20_Serial myBC20(&Serial2);//others
 #endif
 
 /******************SoftwareSerial******************/
@@ -95,7 +95,7 @@ DFRobot_BC20_Serial myBC20(&Serial1);//others
 */
 #define PIN_TXD   3
 #define PIN_RXD   4
-SoftwareSerial ss(PIN_TXD, PIN_RXD);
+SoftwareSerial ss(PIN_RXD,PIN_TXD);
 DFRobot_BC20_SW_Serial myBC20(&ss);
 #endif
 
@@ -116,46 +116,46 @@ void callback(char * topic, uint8_t * payload, unsigned int len) {
   String receivedData = payload;
   if (receivedData.equals("OFF") == true) {
     myBC20.LED_OFF();
-    Serial.println("LED is OFF.");
+    //    Serial.println("LED is OFF.");
   }
   else if (receivedData.equals("RED") == true) {
     myBC20.changeColor(RED);
     myBC20.LED_ON();
-    Serial.println("LED is red.");
+    //    Serial.println("LED is red.");
   }
   else if (receivedData.equals("GREEN") == true) {
     myBC20.changeColor(GREEN);
     myBC20.LED_ON();
-    Serial.println("LED is green.");
+    //      Serial.println("LED is green.");
   }
-  //  else if (receivedData.equals("BLUE") == true) {
-  //    myBC20.changeColor(BLUE);
-  //    myBC20.LED_ON();
-  //    Serial.println("LED is blue.");
-  //  }
-  //  else if (receivedData.equals("YELLOW") == true) {
-  //    myBC20.changeColor(YELLOW);
-  //    myBC20.LED_ON();
-  //    Serial.println("LED is yellow.");
-  //  }
-  //  else if (receivedData.equals("PURPLE") == true) {
-  //    myBC20.changeColor(PURPLE);
-  //    myBC20.LED_ON();
-  //    Serial.println("LED is purple.");
-  //  }
-  //  else if (receivedData.equals("CYAN") == true) {
-  //    myBC20.changeColor(CYAN);
-  //    myBC20.LED_ON();
-  //    Serial.println("LED is cyan.");
-  //  }
-  //  else if (receivedData.equals("WHITE") == true) {
-  //    myBC20.changeColor(WHITE);
-  //    myBC20.LED_ON();
-  //    Serial.println("LED is white.");
-  //  }
-  //  else {
-  //    ;
-  //  }
+  else if (receivedData.equals("BLUE") == true) {
+    myBC20.changeColor(BLUE);
+    myBC20.LED_ON();
+    //      Serial.println("LED is blue.");
+  }
+  else if (receivedData.equals("YELLOW") == true) {
+    myBC20.changeColor(YELLOW);
+    myBC20.LED_ON();
+    //      Serial.println("LED is yellow.");
+  }
+  else if (receivedData.equals("PURPLE") == true) {
+    myBC20.changeColor(PURPLE);
+    myBC20.LED_ON();
+    //      Serial.println("LED is purple.");
+  }
+  else if (receivedData.equals("CYAN") == true) {
+    myBC20.changeColor(CYAN);
+    myBC20.LED_ON();
+    //      Serial.println("LED is cyan.");
+  }
+  else if (receivedData.equals("WHITE") == true) {
+    myBC20.changeColor(WHITE);
+    myBC20.LED_ON();
+    //      Serial.println("LED is white.");
+  }
+  else {
+    ;
+  }
 }
 
 void ConnectCloud() {
@@ -172,11 +172,6 @@ void ConnectCloud() {
         break;
     }
   }
-
-  //Disable sleep mode
-//  myBC20.configSleepMode(eSleepMode_Disable);
-//  //Disable PSM
-//  myBC20.setPSMMode(ePSM_OFF);
 
   while (!myBC20.subTopic('0', '1', subTopic, '0')) {
     Serial.print(".");
@@ -200,25 +195,30 @@ void setup() {
     myBC20.LED_OFF();
     delay(500);
   }
-  Serial.println("BC20 started successfully!");
+  Serial.println("started successfully!");
 
   /*Check whether SIM card is inserted*/
-  Serial.println("Checking SIM card ...");
+  Serial.print("Checking SIM card ...");
   myBC20.changeColor(GREEN);
   while (!myBC20.checkNBCard()) {
-    Serial.println("Please insert the NB SIM card !");
+    Serial.print(".");
     myBC20.LED_ON();
     delay(500);
     myBC20.LED_OFF();
     delay(500);
   }
-  Serial.println("SIM card check OK!");
+  Serial.println("OK!");
+
+  //Disable sleep mode
+  myBC20.configSleepMode(eSleepMode_Disable);
+  //Disable PSM
+  myBC20.setPSMMode(ePSM_OFF);
 
   /**
      The module will automatically attempt to connect to the network (mobile station).
      Check whether it is connected to the network.
   */
-  Serial.println("Connecting network ...");
+  Serial.print("Connecting network ...");
   myBC20.changeColor(BLUE);
   while (myBC20.getGATT() == 0) {
     Serial.print(".");
@@ -227,7 +227,7 @@ void setup() {
     myBC20.LED_OFF();
     delay(500);
   }
-  Serial.println("Network is connected!");
+  Serial.println("connected!");
 
   //Set callback function
   myBC20.setCallback(callback);
@@ -240,6 +240,7 @@ void setup() {
 
   //Conect to DFRobot Easy-IoT
   ConnectCloud();
+
 }
 
 void loop() {

@@ -14,11 +14,10 @@ class DFRobot_Iot{
               String OneNetProductID, String OneNetDeviceID,
               String OneNetApiKey, uint16_t OneNetPort = 6002);
     /*Aliyun*/
-    void init(char* AliyunServer, char* AliProductKey, 
-              char* AliClientId, char* AliDeviceName, 
-              char* AliDeviceSecret, uint16_t AliPort = 1883);
+    void init(String AliyunServer, String AliProductKey, 
+              String AliClientId, String AliDeviceName, 
+              String AliDeviceSecret, uint16_t AliPort = 1883);
     void setConfig();
-	void clearMemary();
     uint8_t _UseServer = ALIYUN;
     
     /*onenet*/
@@ -33,10 +32,10 @@ class DFRobot_Iot{
     /*public*/
     String _MQTTSERVER;
     uint16_t _port;
-    char* _mqttServer;
-    char* _clientId;
-    char* _username;
-    char* _password;
+    char * _mqttServer;
+    char * _clientId;
+    char * _username;
+    char * _password;
   private:
     
 };

@@ -57,8 +57,8 @@ DFRobot_BC20_IIC myBC20(0x33);
    For MEGA2560/ESP32 HardwareSerial
    Connect Instructions
    esp32      |               MEGA Series    |    Module(BC20)
-   IO17       |               D16(RX)        |       D/T
-   IO16       |               D17(TX)        |       C/R
+   IO16       |               D17(RX)        |       D/T
+   IO17       |               D16(TX)        |       C/R
    GND        |               GND            |       GND
    5V(USB) or 3V3(battery)  | 5V or 3V3      |       VCC
 */
@@ -66,7 +66,7 @@ DFRobot_BC20_IIC myBC20(0x33);
 HardwareSerial Serial2(2);
 DFRobot_BC20_Serial myBC20(&Serial2);//ESP32HardwareSerial
 #else
-DFRobot_BC20_Serial myBC20(&Serial1);//others
+DFRobot_BC20_Serial myBC20(&Serial2);//others
 #endif
 
 /******************SoftwareSerial******************/
@@ -82,7 +82,7 @@ DFRobot_BC20_Serial myBC20(&Serial1);//others
 */
 #define PIN_TXD   3
 #define PIN_RXD   4
-SoftwareSerial ss(PIN_TXD, PIN_RXD);
+SoftwareSerial ss(PIN_RXD,PIN_TXD);
 DFRobot_BC20_SW_Serial myBC20(&ss);
 #endif
 
@@ -167,5 +167,9 @@ void loop() {
   myBC20.LED_ON();
   delay(500);
   myBC20.LED_OFF();
+#ifndef ARDUINO_ESP32_DEV  
+  delay(500);
+#else 
   delay(5000);
+#endif
 }

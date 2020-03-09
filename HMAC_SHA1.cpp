@@ -3,8 +3,9 @@
 
 void CHMAC_SHA1::HMAC_SHA1(BYTE *text, int text_len, BYTE *key, int key_len, BYTE *digest)
 {
-    memset(SHA1_Key, 0, SHA1_BLOCK_SIZE);
-
+	
+    memset(SHA1_Key, '\0', SHA1_BLOCK_SIZE);
+#if 0
     /* repeated 64 times for values in ipad and opad */
     memset(m_ipad, 0x36, sizeof(m_ipad));
     memset(m_opad, 0x5c, sizeof(m_opad));
@@ -51,4 +52,5 @@ void CHMAC_SHA1::HMAC_SHA1(BYTE *text, int text_len, BYTE *key, int key_len, BYT
     CSHA1::Final();
 
     CSHA1::GetHash((uint8_t *)digest);
+	#endif 
 }
