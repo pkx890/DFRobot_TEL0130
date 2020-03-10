@@ -1,7 +1,7 @@
 /*!
    @file getGNSS.ino
    @brief Print all the GNSS info available in BC20.
-   @Compiling this DEMO work on Arduino AVR
+   @notices：Compiling this DEMO work on Arduino AVR，And you cannot use a hard serial port on UNO
    @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
    @licence     The MIT License (MIT)
    @author      [Peng Kaixing](kaixing.peng@dfrobot.com)
@@ -22,6 +22,9 @@
 
 /*Communication by IIC*/
 #define USE_IIC
+
+/*Communication by HardwareSerial*/
+//#define USE_HSERIAL
 
 /*Communication by SoftwareSerial*/
 //#define USE_SSERIAL
@@ -45,6 +48,24 @@
      0x33:(A0=1,A1=1) default
 */
 DFRobot_BC20_IIC myBC20(0x33);
+
+/******************HardwareSerial******************/
+#elif defined(USE_HSERIAL)
+/*
+   For MEGA2560/ESP32 HardwareSerial
+   Connect Instructions
+   esp32      |               MEGA Series    |    Module(BC20)
+   IO16       |               D17(RX)        |       D/T
+   IO17       |               D16(TX)        |       C/R
+   GND        |               GND            |       GND
+   5V(USB) or 3V3(battery)  | 5V or 3V3      |       VCC
+*/
+#if defined(ARDUINO_ESP32_DEV)
+HardwareSerial Serial2(2);
+DFRobot_BC20_Serial myBC20(&Serial2);//ESP32HardwareSerial
+#else
+DFRobot_BC20_Serial myBC20(&Serial2);//others
+#endif
 
 /******************SoftwareSerial******************/
 #elif defined(USE_SSERIAL)
@@ -76,9 +97,9 @@ void Display_Location_Information() {
   Serial.print(sCLK.Day);
   Serial.print("  ");
   Serial.print(sCLK.Hour);
-  Serial.print("：");
+  Serial.print(":");
   Serial.print(sCLK.Minute);
-  Serial.print("：");
+  Serial.print(":");
   Serial.println(sCLK.Second);
 
   Serial.print("Latitude:\t");

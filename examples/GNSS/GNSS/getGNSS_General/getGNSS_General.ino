@@ -1,7 +1,7 @@
 /*!
    @file getGNSS.ino
    @brief Print all the GNSS info available in BC20.
-   @Compiling this DEMO DOSE NOT work on Arduino UNO, requiring a Dev. board with more RAM.
+   @notice Do not use soft serial ports on esp32
    @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
    @licence     The MIT License (MIT)
    @author      [Peng Kaixing](kaixing.peng@dfrobot.com)
