@@ -7,7 +7,6 @@
 #ifndef ARDUINO_ESP32_DEV
 #include "SoftwareSerial.h"
 #endif
-
 #include "Wire.h"
 #include "EEPROM.h"
 #define DBG(sth)   Serial.print("DBG:");Serial.print(__LINE__);Serial.print("--------");Serial.println(sth)
@@ -908,7 +907,7 @@ typedef struct
 }sCLK_t;
 extern sCLK_t sCLK;
 
-#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO) 
+#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO) || defined(ARDUINO_AVR_MEGA2560)
 typedef struct
 {
     uint8_t NUM;
@@ -938,7 +937,7 @@ typedef struct
 extern sGGNS_t sGGNS;
 #endif
 
-#if !defined(ARDUINO_AVR_UNO) && !defined(ARDUINO_AVR_LEONARDO)
+#if !defined(ARDUINO_AVR_UNO) && !defined(ARDUINO_AVR_LEONARDO) && !defined(ARDUINO_AVR_MEGA2560)
 struct sGSV2
 {
     String PRN;

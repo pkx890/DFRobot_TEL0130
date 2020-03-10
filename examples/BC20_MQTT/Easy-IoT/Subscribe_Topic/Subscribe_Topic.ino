@@ -24,16 +24,16 @@
 #define  WHITE 6
 
 /*Configure device certificate information*/
-char* Iot_id = "Cv3YouPZR";
-char* Client_ID  = "1234";
-char* Iot_pwd    = "CD3YTXEZRz";
+char* Iot_id = "your_Iot_id";
+char* Client_ID  = "your_Client_ID";
+char* Iot_pwd    = "your_Iot_pwd";
 
 /*Configure the domain name and port number*/
 char* EasyIot_SERVER = "182.254.130.180";
 char* PORT = "1883";
 
 /*Set the Topic you need to publish to*/
-char* subTopic = "QjREoXEZg";
+char* subTopic = "your_subTopic";
 
 /*Communication by IIC*/
 #define USE_IIC

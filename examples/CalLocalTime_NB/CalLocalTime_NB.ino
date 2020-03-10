@@ -139,7 +139,7 @@ void setup()
   Serial.print("BC20 IMEI: ");
   Serial.println(sGSN.imei);
   Serial.print("SIM card ICCID:");
-  Serial.println(myBC20.getQCCID());
+  Serial.print(myBC20.getQCCID());
   Serial.print("SIM card IMSI: ");
   Serial.println((char *)myBC20.getIMI());
 

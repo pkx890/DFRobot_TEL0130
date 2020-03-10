@@ -20,7 +20,7 @@ sRMC_t sRMC;
 sVTG_t sVTG;
 sCLK_t sCLK;
 sGGNS_t sGGNS;
-#if !defined(ARDUINO_AVR_UNO) && !defined(ARDUINO_AVR_LEONARDO)
+#if !defined(ARDUINO_AVR_UNO) && !defined(ARDUINO_AVR_LEONARDO) && !defined(ARDUINO_AVR_MEGA2560)
 sSAT_t2 sSAT2;
 #endif
 sSAT_t sSAT;
@@ -1244,6 +1244,7 @@ bool DFRobot_BC20 :: setQGNSSC(uint8_t mode){
     receviceATCMD(300);
     return CheckRecData(AT_OK);
 }
+
 static float Longitude_conversion(String str){
     float temp = 0;
     String tempStr = str;
@@ -1266,7 +1267,8 @@ static float Longitude_conversion(String str){
     }
     return temp;
 }
-#if !defined(ARDUINO_AVR_UNO) && !defined(ARDUINO_AVR_LEONARDO)
+
+#if !defined(ARDUINO_AVR_UNO) && !defined(ARDUINO_AVR_LEONARDO) && !defined(ARDUINO_AVR_MEGA2560)
 uint8_t DFRobot_BC20 :: getQGNSSRD(void){
     getQGNSSRD(NMEA_RMC);
     sGGNS.LatitudeVal = Longitude_conversion(sRMC.LatitudeVal());
@@ -1307,11 +1309,13 @@ uint8_t DFRobot_BC20 :: getQGNSSRD(void){
 }
 #endif
 
-#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)
+#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO) || defined(ARDUINO_AVR_MEGA2560)
 uint8_t DFRobot_BC20 :: getQGNSSRD(void){
     getQGNSSRD(NMEA_RMC);
-	sGGNS.LatitudeVal = Longitude_conversion(sRMC.LatitudeVal());
-	sGGNS.LongitudeVal = Longitude_conversion(sRMC.LongitudeVal());
+/* 	sGGNS.LatitudeVal = Longitude_conversion(sRMC.LatitudeVal());
+	sGGNS.LongitudeVal = Longitude_conversion(sRMC.LongitudeVal()); */
+	sGGNS.LatitudeVal = Longitude_conversion("120514.00");
+	sGGNS.LongitudeVal = Longitude_conversion("3150.78165");	
     return 1;
 }
 #endif
@@ -1548,7 +1552,7 @@ bool DFRobot_BC20 :: getQGNSSRD(char* cmd){
 					{
 						sSAT.NUM=6;
 					}
-#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)
+#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO) || defined(ARDUINO_AVR_MEGA2560)
 					if(sSAT.NUM>11)
 					sSAT.NUM=11;
 #endif					
@@ -3196,7 +3200,7 @@ void DFRobot_BC20_IIC::receviceATCMD(uint32_t timeout){//Receive the command dat
 		Wire.endTransmission();		
 		Wire.requestFrom(IIC_addr,1);
 		len = Wire.read();
-#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)		
+#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)	|| defined(ARDUINO_AVR_MEGA2560)
 		if(len>0)
 		{
 			num++;			
@@ -3222,7 +3226,7 @@ void DFRobot_BC20_IIC::receviceATCMD(uint32_t timeout){//Receive the command dat
 				if(len > IIC_Len){		
 					Wire.requestFrom(IIC_addr,IIC_Len);
 					for(int i=0;i<IIC_Len;i++){
-#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)						
+#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)	|| defined(ARDUINO_AVR_MEGA2560)		
 						if(num<7){
 							tempData+=(char)Wire.read();
 						}else{
@@ -3239,7 +3243,7 @@ void DFRobot_BC20_IIC::receviceATCMD(uint32_t timeout){//Receive the command dat
 				}else{
 					Wire.requestFrom(IIC_addr,len);
 					for(int i=0;i<len;i++){
-#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)						
+#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)	|| defined(ARDUINO_AVR_MEGA2560)					
 						if(num<7){
 							tempData+=(char)Wire.read();
 						}else{
@@ -3254,7 +3258,7 @@ void DFRobot_BC20_IIC::receviceATCMD(uint32_t timeout){//Receive the command dat
 				if((tempData.indexOf("\r\n") != -1))
 				break;
 			}
-#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)				
+#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)	|| defined(ARDUINO_AVR_MEGA2560)			
 if((num>5)&&(flag==0))
 {
 	tempData="OK\r\n";
@@ -3357,7 +3361,7 @@ String DFRobot_BC20_SW_Serial::readData()
 
 void DFRobot_BC20_SW_Serial::receviceATCMD(uint32_t timeout){	
     String tempData="";
-#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)
+#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO) || defined(ARDUINO_AVR_MEGA2560)
 	Flag=1;
 	uint8_t counter=5;
 #else

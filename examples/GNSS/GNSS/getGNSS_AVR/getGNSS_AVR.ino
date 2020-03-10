@@ -1,7 +1,7 @@
 /*!
    @file getGNSS.ino
    @brief Print all the GNSS info available in BC20.
-   @Compiling this DEMO work on Arduino UNO
+   @Compiling this DEMO work on Arduino AVR
    @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
    @licence     The MIT License (MIT)
    @author      [Peng Kaixing](kaixing.peng@dfrobot.com)
@@ -82,12 +82,12 @@ void Display_Location_Information() {
   Serial.println(sCLK.Second);
 
   Serial.print("Latitude:\t");
-  Serial.print(sGGNS.LatitudeVal);
-  Serial.print(" ");  
+  Serial.print(sGGNS.LatitudeVal,6);
+  Serial.print(" deg ");  
   Serial.println(sGGNS.LatitudeDir());
   Serial.print("Longitude:\t");
-  Serial.print(sGGNS.LongitudeVal);
-  Serial.print(" ");  
+  Serial.print(sGGNS.LongitudeVal,6);
+  Serial.print(" deg ");  
   Serial.println(sGGNS.LongitudeDir());
   Serial.print("Speed:\t\t");  
   Serial.print(sGGNS.Speed());

@@ -28,10 +28,10 @@
 /*
  *Configure device certificate information
  */
-char* ProductKey = "a1QAq4WoEou";
-char* ClientId = "Tinker_A";/*Custom id*/
-char* DeviceName = "YEYMxzpGI3TlwvCRHWtQ";
-char* DeviceSecret = "9FYJoMXlsxXiyO6wNH3z7gJ0QKPrmWAn";
+char* ProductKey = "your_ProductKey";
+char* ClientId = "your_ClientId";/*Custom id*/
+char* DeviceName = "your_DeviceName";
+char* DeviceSecret = "your_DeviceSecret";
 
 /*
  *Configure the domain name and port number
@@ -47,8 +47,8 @@ char* Identifier = "your_Identifier";
 /*
  *TOPIC that need to be published and subscribed
  */
-char* subTopic = "/a1QAq4WoEou/YEYMxzpGI3TlwvCRHWtQ/user/get";//****set
-char* pubTopic = "/a1QAq4WoEou/YEYMxzpGI3TlwvCRHWtQ/user/update/error";//******post
+char* subTopic = "your_subTopic";//****set
+char* pubTopic = "your_pubTopic";//******post
 
 /*Communication by IIC*/
 #define USE_IIC
