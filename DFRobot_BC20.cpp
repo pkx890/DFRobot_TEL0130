@@ -1312,10 +1312,8 @@ uint8_t DFRobot_BC20 :: getQGNSSRD(void){
 #if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO) || defined(ARDUINO_AVR_MEGA2560)
 uint8_t DFRobot_BC20 :: getQGNSSRD(void){
     getQGNSSRD(NMEA_RMC);
-/* 	sGGNS.LatitudeVal = Longitude_conversion(sRMC.LatitudeVal());
-	sGGNS.LongitudeVal = Longitude_conversion(sRMC.LongitudeVal()); */
-	sGGNS.LatitudeVal = Longitude_conversion("120514.00");
-	sGGNS.LongitudeVal = Longitude_conversion("3150.78165");	
+ 	sGGNS.LatitudeVal = Longitude_conversion(sRMC.LatitudeVal());
+	sGGNS.LongitudeVal = Longitude_conversion(sRMC.LongitudeVal()); 	
     return 1;
 }
 #endif
