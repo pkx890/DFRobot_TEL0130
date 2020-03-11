@@ -154,6 +154,7 @@ void Display_Satellite_Information() {
     Serial.print("\t");
     Serial.println(sSAT2.data[i].Status);
   }
+  Serial.println("");
 }
 
 void setup() {

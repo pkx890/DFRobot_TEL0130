@@ -967,6 +967,7 @@ typedef struct
     float Speed;
     float Heading;
     String FixStatus;
+    String Statellite_CH[2][12];
     String PDOP;
     String HDOP;
     String VDOP;

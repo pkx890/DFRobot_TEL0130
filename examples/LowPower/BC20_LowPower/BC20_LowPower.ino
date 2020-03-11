@@ -222,5 +222,4 @@ void loop() {
     delay(1000);
   }
   Serial.println("BC20 exit PSM success!");
-
 }

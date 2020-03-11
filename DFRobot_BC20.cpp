@@ -1281,6 +1281,12 @@ uint8_t DFRobot_BC20 :: getQGNSSRD(void){
     getQGNSSRD(NMEA_GGA);
 	sGGNS.Altitude=atof(sGGA.Altitude());
 	getQGNSSRD(NMEA_GSA);
+	  for (uint8_t i = 0; i < 2; i++) {
+		for (uint8_t j = 0; j < 12; j++) {
+		  sGGNS.Statellite_CH[i][j]=sGSA.data[i].Statellite_CH(j);
+		  delay(1);
+		}
+	  }
     sGGNS.PDOP = sGSA.data[0].PDOP();
     sGGNS.HDOP = sGSA.data[0].HDOP();
     sGGNS.VDOP = sGSA.data[0].VDOP();
@@ -1317,6 +1323,7 @@ uint8_t DFRobot_BC20 :: getQGNSSRD(void){
 #endif
 
 static void CheckSatelliteUse(uint8_t num){
+#ifdef ARDUINO_ESP32_DEV
     uint8_t temp = 0;
 	char* tempdata;
 	char*d;
@@ -1328,17 +1335,19 @@ static void CheckSatelliteUse(uint8_t num){
     }else{
         
     }		
-    for(uint8_t i =0; i < 12; i++){
-        if(strcmp(sSAT.data[num].PRN(),sGSA.data[temp].Statellite_CH(i))==0){
-			sSAT.data[num].NUM=num;
-			addr=(sSAT.data[num].NUM)*21+3+3+3+3;
-			tempdata="Y";
-			d=tempdata;
-		    for(int j=0;j<strlen(d);j++){
-			  EEPROM.write(addr+j,d[j]);
-			  }            
-            return;
-        }
+    for(uint8_t i =0; i < 2; i++){
+		for(uint8_t j =0; j < 12; j++){
+			if(strcmp(sSAT.data[num].PRN(),(sGGNS.Statellite_CH[i][j]).c_str())==0){
+				sSAT.data[num].NUM=num;
+				addr=(sSAT.data[num].NUM)*21+3+3+3+3;
+				tempdata="Y";
+				d=tempdata;
+				for(int j=0;j<strlen(d);j++){
+				  EEPROM.write(addr+j,d[j]);
+				  }            
+				return;
+			}
+		}
     }
 	sSAT.data[num].NUM=num;
 	addr=(sSAT.data[num].NUM)*21+3+3+3+3;
@@ -1346,8 +1355,9 @@ static void CheckSatelliteUse(uint8_t num){
 	d=tempdata;
 	for(int j=0;j<strlen(d);j++){
 	  EEPROM.write(addr+j,d[j]);
-	  }  		
-	}
+	  }  	
+#endif	  
+}
 void DFRobot_BC20::getSatelliteInformation(uint8_t start, uint8_t num, char* str, char* sys){//Given a satellite data, which satellite does it start with, how many satellites do you have   
 	char* tempStr = str;
 	int addr;
@@ -1410,7 +1420,7 @@ void DFRobot_BC20::getSatelliteInformation(uint8_t start, uint8_t num, char* str
             //sSAT.data[i+start].Azim = GetSthfrontString(",",tempStr);//Azimuth of satellite i+start
         }
         tempStr = removeSthString(",",tempStr);
-        if(strlen(GetSthfrontString(",",tempStr))== 0){
+        if((strlen(GetSthfrontString(",",tempStr))== 0)||(strlen(GetSthfrontString(",",tempStr))>2)){
 			sSAT.data[i+start].NUM=i+start;
 			addr=(sSAT.data[i+start].NUM)*21+3+3+3;
 			d="N/A";
@@ -1437,7 +1447,10 @@ void DFRobot_BC20::getSatelliteInformation(uint8_t start, uint8_t num, char* str
 		  }			
         //sSAT.data[i+start].SYS = sys;
         tempStr = removeSthString(",",tempStr);
+#ifdef ARDUINO_ESP32_DEV
         CheckSatelliteUse(i+start);
+#endif
+		
     }
 }
 
