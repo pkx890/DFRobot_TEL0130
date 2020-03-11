@@ -951,7 +951,7 @@ struct sGSV2
 typedef struct
 {
     uint8_t NUM;
-    uint8_t USE;
+    uint8_t USE=0;
     sGSV2 data[40];
 }sSAT_t2;
 extern sSAT_t2 sSAT2;

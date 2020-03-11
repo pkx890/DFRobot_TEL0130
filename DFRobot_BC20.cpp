@@ -1279,18 +1279,14 @@ uint8_t DFRobot_BC20 :: getQGNSSRD(void){
     sGGNS.Speed = atof(sVTG.GroundCourse_Kmh());
     sGGNS.Heading = atof(sVTG.GroundCourse_True());	
     getQGNSSRD(NMEA_GGA);
-    getQGNSSRD(NMEA_GSA);
+	sGGNS.Altitude=atof(sGGA.Altitude());
+	getQGNSSRD(NMEA_GSA);
     sGGNS.PDOP = sGSA.data[0].PDOP();
     sGGNS.HDOP = sGSA.data[0].HDOP();
     sGGNS.VDOP = sGSA.data[0].VDOP();
-    if(sGSA.data[0].FixStatus() == "2"){
-        sGGNS.FixStatus = "2D fixed";
-    }else if(sGSA.data[0].FixStatus() == "3"){
-        sGGNS.FixStatus = "3D fixed";
-    }else{
-        sGGNS.FixStatus = "No fix";
-    }
+    sGGNS.FixStatus = sGSA.data[0].FixStatus();
     getQGNSSRD(NMEA_GSV);
+	sSAT2.USE=0;
 	for(int i=0;i<sSAT.NUM;i++)
 	{
   		sSAT2.data[i].PRN=sSAT.data[i].PRN();
@@ -1299,6 +1295,8 @@ uint8_t DFRobot_BC20 :: getQGNSSRD(void){
 		sSAT2.data[i].SNR=sSAT.data[i].SNR();
 		sSAT2.data[i].SYS=sSAT.data[i].SYS();
 		sSAT2.data[i].Status=sSAT.data[i].Status();
+		if(sSAT2.data[i].Status=="Y")
+			(sSAT2.USE)++;
 		if(ret!=NULL)
 		{
 			free(ret);
@@ -1489,6 +1487,11 @@ bool DFRobot_BC20 :: getQGNSSRD(char* cmd){
             getRecDataforNum_NoCheck(readnum+i,data);
 			if(strlen((char*)data)<5)
 			{
+				if(ret1!=NULL)
+				{
+					free(ret1);
+					ret1=NULL;				
+				}			
 				free(data);
 				data=NULL;
 				return false;
@@ -1546,13 +1549,16 @@ bool DFRobot_BC20 :: getQGNSSRD(char* cmd){
 			if(TotSEN > 0){
                 if(NumSEN == 1){
                     sSAT.NUM += NumSAT;
-					if(Flag==1)
-					{
-						sSAT.NUM=6;
-					}
 #if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO) || defined(ARDUINO_AVR_MEGA2560)
 					if(sSAT.NUM>11)
 					sSAT.NUM=11;
+					if(Flag==1)
+					{
+						sSAT.NUM=6;
+					}	
+#else 
+	          if(sSAT.NUM>17)    
+			  sSAT.NUM=17;
 #endif					
                 }
                 if(NumSAT /(NumSEN*4) > 0){
@@ -3254,7 +3260,10 @@ void DFRobot_BC20_IIC::receviceATCMD(uint32_t timeout){//Receive the command dat
 					len=0;
 				}
 				if((tempData.indexOf("\r\n") != -1))
-				break;
+				{
+					break;
+				}
+				
 			}
 #if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO)	|| defined(ARDUINO_AVR_MEGA2560)			
 if((num>5)&&(flag==0))

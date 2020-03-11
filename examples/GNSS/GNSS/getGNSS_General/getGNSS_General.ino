@@ -1,7 +1,7 @@
 /*!
    @file getGNSS.ino
    @brief Print all the GNSS info available in BC20.
-   @notice Do not use soft serial ports on esp32
+   @Compiling this DEMO DOSE NOT work on Arduino UNO, requiring a Dev. board with more RAM.
    @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
    @licence     The MIT License (MIT)
    @author      [Peng Kaixing](kaixing.peng@dfrobot.com)
@@ -97,9 +97,9 @@ void Display_Location_Information() {
   Serial.print(sCLK.Day);
   Serial.print("  ");
   Serial.print(sCLK.Hour);
-  Serial.print("：");
+  Serial.print(":");
   Serial.print(sCLK.Minute);
-  Serial.print("：");
+  Serial.print(":");
   Serial.println(sCLK.Second);
 
   Serial.print("Latitude:\t");
@@ -133,7 +133,7 @@ void Display_Location_Information() {
 void Display_Satellite_Information() {
   Serial.print(sSAT.NUM);
   Serial.println(" in view.");
-  Serial.print(sSAT.USE);
+  Serial.print(sSAT2.USE);
   Serial.println(" in used.");
   Serial.print("PRN\t");
   Serial.print("Elev(deg)\t");

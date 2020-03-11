@@ -1,7 +1,7 @@
 /*!
    @file getGNSS.ino
    @brief Print all the GNSS info available in BC20.
-   @notices：Compiling this DEMO work on Arduino AVR，And you cannot use a hard serial port on UNO
+   @Compiling this DEMO work on Arduino AVR
    @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
    @licence     The MIT License (MIT)
    @author      [Peng Kaixing](kaixing.peng@dfrobot.com)
@@ -55,8 +55,8 @@ DFRobot_BC20_IIC myBC20(0x33);
    For MEGA2560/ESP32 HardwareSerial
    Connect Instructions
    esp32      |               MEGA Series    |    Module(BC20)
-   IO16       |               D17(RX)        |       D/T
-   IO17       |               D16(TX)        |       C/R
+   IO16       |               D16(RX)        |       D/T
+   IO17       |               D17(TX)        |       C/R
    GND        |               GND            |       GND
    5V(USB) or 3V3(battery)  | 5V or 3V3      |       VCC
 */
@@ -121,6 +121,7 @@ void Display_Location_Information() {
   */  
   Serial.print("Positioning Mode:\t");
   Serial.println(sGGNS.PositioningMode());  
+  Serial.println("");
 }
 
 void setup() {
