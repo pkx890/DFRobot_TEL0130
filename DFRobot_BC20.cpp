@@ -2049,6 +2049,107 @@ void DFRobot_BC20 :: getGPS(void){
     sendATCMD("Hello World!");
 }
 
+
+bool DFRobot_BC20 ::setAliyunserver(char*ProductKey,char* IPAddress,char* port,char connectID){
+	char*IPaddress=(char*)malloc(strlen(ProductKey)+strlen(IPAddress)+1);
+	if(IPaddress==NULL){
+		free(IPaddress);
+		IPaddress=NULL;
+		return false;
+	}
+	memset(IPaddress,'\0',strlen(ProductKey)+strlen(IPAddress)+1);
+	memcpy(IPaddress,ProductKey,strlen(ProductKey));
+	memcpy(IPaddress+strlen(ProductKey),IPAddress,strlen(IPAddress));
+    while(false==openMQTT(connectID,IPaddress,port)){
+        closeMQTT(0);
+        delay(1000);
+    }
+	free(IPaddress);
+	IPaddress=NULL;
+    return true;	
+}
+
+bool DFRobot_BC20 ::connect_Aliyun(char* ProductKey,char* DeviceName,char* DeviceSecret){
+	uint8_t* data=NULL;
+	uint8_t timeout=0;
+	String tempStr;
+	uint8_t ProductKey_len=strlen(ProductKey);
+	uint8_t DeviceName_len=strlen(DeviceName);
+	uint8_t DeviceSecret_len=strlen(DeviceSecret);
+	char* tempdata=(char*)malloc(13+ProductKey_len+DeviceName_len+DeviceSecret_len+15);
+	if(tempdata==NULL){
+		free(tempdata);
+		tempdata=NULL;
+		return false;
+	}
+	memset(tempdata,'\0',6+ProductKey_len+DeviceName_len+DeviceSecret_len+15);
+	memcpy(tempdata,GET_QMTCFG,6);
+	memcpy(tempdata+6,"=\"",2);
+	memcpy(tempdata+8,"ALIAUTH",7);
+	memcpy(tempdata+8+7,"\",0,\"",5);
+	memcpy(tempdata+8+7+5,ProductKey,ProductKey_len);
+	ProductKey=NULL;
+	memcpy(tempdata+8+7+5+ProductKey_len,"\",\"",3);
+	memcpy(tempdata+8+7+5+ProductKey_len+3,DeviceName,DeviceName_len);
+	memcpy(tempdata+8+7+5+ProductKey_len+3+DeviceName_len,"\",\"",3);
+	memcpy(tempdata+8+7+5+ProductKey_len+3+DeviceName_len+3,DeviceSecret,DeviceSecret_len);
+	DeviceSecret=NULL;
+	memcpy(tempdata+8+7+5+ProductKey_len+3+DeviceName_len+3+DeviceSecret_len,"\"",1);
+	flushBC20Serial();
+	sendATCMD((char*)tempdata);
+	free(tempdata);
+	tempdata=NULL;
+	receviceATCMD(300);
+	if(!CheckRecData(AT_OK))
+	{
+		return false;
+	}
+	tempdata=(char*)malloc(13+DeviceName_len);
+	if(tempdata==NULL){
+		free(tempdata);
+		tempdata=NULL;
+		return false;
+	}
+	memset(tempdata,'\0',13+DeviceName_len);
+	memcpy(tempdata,SET_QMTCONN,7);
+	memcpy(tempdata+7,"=0,\"",4);
+	memcpy(tempdata+11,DeviceName,DeviceName_len);
+	DeviceSecret=NULL;
+	memcpy(tempdata+11+DeviceName_len,"\"",1);
+	flushBC20Serial();
+	sendATCMD((char*)tempdata);
+	free(tempdata);
+	tempdata=NULL;
+	receviceATCMD(5000);
+   if(CheckRecData(AT_OK)){
+		while(1)
+		{
+			receviceATCMD(300);
+			timeout++;
+			if(timeout>250)
+			{
+				return false;
+			}			
+			getRecDataforNum_NoCheck(1,data);
+			tempStr  = (char *)data;
+			if(tempStr.length()>0){
+				if(data != NULL){
+					free(data);
+					data = NULL;
+				}
+				if(tempStr.equals("+QMTCONN: 0,0,0\r\n")){
+					this->mqttConneced = true;
+					delay(1000);
+					return true;
+				}
+			}
+		}
+    } 
+    return false;
+}
+
+
+
 void DFRobot_BC20 :: configMQTT(void){
     flushBC20Serial();
 }
@@ -2154,7 +2255,6 @@ bool DFRobot_BC20::connected(){
 }
 bool DFRobot_BC20 :: connectServer(char connectID, char* clientID, char* UserName, char* PassWord){	
   	uint8_t * data=NULL;
-	uint8_t * data2= NULL;
 	uint8_t timeout=0;
     String tempStr;
 	char * tempChar=NULL;
@@ -2253,10 +2353,10 @@ bool DFRobot_BC20 :: disConnectServer(String connectID){
 }
 
 bool DFRobot_BC20 :: subTopic(char connectID, char msgID, char* topic, char qos){
-	char* tempdata;
-	uint8_t* data;
-	uint8_t num;
-	uint8_t* temptime;
+	char* tempdata=NULL;
+	uint8_t* data=NULL;
+	String tempStr;
+	uint8_t timeout=0;
 	uint8_t topic_len=strlen(topic);
 	uint8_t cmd_len=strlen(SET_QMTSUB);
 	uint8_t ALL_len=cmd_len+1+1+1+1+2+topic_len+2+1;
@@ -2264,7 +2364,7 @@ bool DFRobot_BC20 :: subTopic(char connectID, char msgID, char* topic, char qos)
 	if(tempdata==NULL)
 	{
 		free(tempdata);
-		return 0;
+		return false;
 	}
 	memset(tempdata,'\0',ALL_len+1);	
 	memcpy(tempdata,SET_QMTSUB,cmd_len);
@@ -2281,13 +2381,31 @@ bool DFRobot_BC20 :: subTopic(char connectID, char msgID, char* topic, char qos)
 	free(tempdata);
 	tempdata=NULL;
     receviceATCMD(10000);
-	num=CheckRecData(AT_OK);
-	delay(5000);
-	if(available())
-	{
-		readData();
-	}
-    return(num);
+    if(CheckRecData(AT_OK)){
+		while(1)
+		{
+			receviceATCMD(300);
+			timeout++;
+			if(timeout>250)
+			{
+				return false;
+			}			
+			getRecDataforNum_NoCheck(1,data);
+			CheckRecData("");			
+			tempStr  = (char *)data;
+			if(tempStr.length()>0)
+			if(data != NULL){
+				free(data);
+				data = NULL;
+			}
+			if(tempStr.equals("+QMTSUB: 0,1,0,1\r\n")){
+				this->mqttConneced = true;
+				delay(1000);
+				return true;
+			}
+		}
+    }
+	return false;
 }
 
 bool DFRobot_BC20 :: unSubTopic(char connectID, char msgID, char* topic){
@@ -2386,7 +2504,7 @@ void DFRobot_BC20 :: loop(){
 	char* tempStr=NULL;
 	if(available()){
 		tempdata=readData();
-		tempStr=(char*)malloc(40);
+		tempStr=(char*)malloc(80);
 		if(tempStr==NULL)
 		{
 			if(ret!=NULL)
@@ -2397,14 +2515,13 @@ void DFRobot_BC20 :: loop(){
 			free(tempStr);
 			return;
 		}
-		memset(tempStr,'\0',40);
+		memset(tempStr,'\0',80);
 		memcpy(tempStr,tempdata.c_str(),tempdata.length());
 	if(indexOf(tempStr,"+QMTRECV: ") != -1){
  		tempStr = removeSthString("+QMTRECV: ",tempStr);
-		//uint8_t connectID,msgID;
 		char* Topic;
 		char*a;
-		Topic=(char*)malloc(20);
+		Topic=(char*)malloc(60);
 		if(Topic==NULL)
 		{
 			if(ret!=NULL)
@@ -2418,11 +2535,9 @@ void DFRobot_BC20 :: loop(){
 			Topic=NULL;			
 			return;			
 		}
-		memset(Topic,'\0',20);
+		memset(Topic,'\0',60);
 		char* RecData;
-		//connectID = (GetSthfrontString(",",tempStr)).toInt();
 		tempStr = removeSthString(",",tempStr);
-		//msgID = (GetSthfrontString(",",tempStr)).toInt();
 		tempStr = removeSthString(",\"",tempStr);
 		a = GetSthfrontString("\",",tempStr);
 		memcpy(Topic,a,strlen(a));

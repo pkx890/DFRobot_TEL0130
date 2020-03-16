@@ -15,7 +15,6 @@
    @get from https://www.dfrobot.com
 */
 #include "DFRobot_BC20.h"
-#include "DFRobot_Iot.h"
 
 /*7 colors are available*/
 #define  RED 0
@@ -174,7 +173,7 @@ void setup() {
      When entered PSM, BC20 will not recive any message issued from the cloud.
   */
   //Disable PSM
-  myBC20.setPSMMode(ePSM_OFF);
+  myBC20.setPSMMode(ePSM_ON);
 
   /**
      The module will automatically attempt to connect to the network (mobile station).

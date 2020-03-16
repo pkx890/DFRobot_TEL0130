@@ -13,7 +13,6 @@
 */
 
 #include "DFRobot_BC20.h"
-#include "DFRobot_Iot.h"
 
 /*7 colors are available*/
 #define  RED 0

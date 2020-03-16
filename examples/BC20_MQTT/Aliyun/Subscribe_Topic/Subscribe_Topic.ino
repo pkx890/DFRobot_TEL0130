@@ -14,7 +14,6 @@
  */
 
 #include "DFRobot_BC20.h"
-#include "DFRobot_Iot.h"
 
 /*7 colors are available*/
 #define  RED 0
@@ -36,7 +35,7 @@ char* DeviceSecret = "your_DeviceSecret";
 /*
  *Configure the domain name and port number
  */
-char* ALIYUN_SERVER ="iot-as-mqtt.cn-shanghai.aliyuncs.com";
+char* ALIYUN_SERVER =".iot-as-mqtt.cn-shanghai.aliyuncs.com";
 char* PORT = "1883";
 
 /*
@@ -45,10 +44,9 @@ char* PORT = "1883";
 char* Identifier = "your_Identifier";
 
 /*
- *TOPIC that need to be published and subscribed
+ *TOPIC that need to be subscribed
  */
 char* subTopic = "your_subTopic";//****set
-char* pubTopic = "your_pubTopic";//******post
 
 /*Communication by IIC*/
 #define USE_IIC
@@ -113,7 +111,6 @@ DFRobot_BC20_Serial myBC20(&Serial2);//others
 SoftwareSerial ss(PIN_RXD,PIN_TXD);
 DFRobot_BC20_SW_Serial myBC20(&ss);
 #endif
-DFRobot_Iot myDevice;
 
 void callback(char * topic, uint8_t * payload, unsigned int len) {
   Serial.print("Recevice [Topic:");
@@ -180,7 +177,7 @@ void ConnectCloud() {
     myBC20.LED_OFF();
     delay(500);
 
-    if (myBC20.connect(myDevice._clientId, myDevice._username, myDevice._password)) {
+    if (myBC20.connect_Aliyun(ProductKey,DeviceName,DeviceSecret)) {
       Serial.println("\nConnect Server OK");
     } else {
       /**
@@ -234,7 +231,7 @@ void setup() {
   Serial.print(myBC20.getQCCID());
   Serial.print("SIM card IMSI: ");
   Serial.println((char *)myBC20.getIMI());
-
+  myBC20.configSleepMode(eSleepMode_Disable);
   /**
      The module will automatically attempt to connect to the network (mobile station).
      Check whether it is connected to the network.
@@ -249,13 +246,16 @@ void setup() {
     delay(500);
   }
   Serial.println("Network is connected!");
-  myDevice.init(ALIYUN_SERVER,ProductKey,ClientId,DeviceName,DeviceSecret);
-  Serial.println("Connecting to DFRobot Easy-IoT");
-
+  Serial.println("Connecting to Aliyun_IOT");
   //Configure IoT Server
-  myBC20.setServer(myDevice._mqttServer, PORT);
+  while(!myBC20.setAliyunserver(ProductKey,ALIYUN_SERVER,PORT))
+  {
+	  Serial.println("Connection to server failed!");
+	  delay(1000);
+  }
   Serial.println("Server is available!");
   ConnectCloud();
+  myBC20.setCallback(callback);
 }
 
 void loop() {

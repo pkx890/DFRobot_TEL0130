@@ -1148,7 +1148,8 @@ class DFRobot_BC20{
     bool setBaudrate(unsigned long baud);
     unsigned long readBaudrate(void);
     
-    
+	bool setAliyunserver(char*ProductKey,char* IPAddress,char* port,char connectID = '0');
+    bool connect_Aliyun(char* ProductKey,char* DeviceName,char* DeviceSecret);
     void configMQTT(void);
     bool setMQTTVersion(uint8_t version);
     void getMQTTParameter(void);

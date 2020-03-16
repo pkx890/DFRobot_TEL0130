@@ -12,7 +12,6 @@
    @get from https://www.dfrobot.com
 */
 #include "DFRobot_BC20.h"
-#include "DFRobot_Iot.h"
 
 /*7 colors are available*/
 #define  RED 0
@@ -113,7 +112,7 @@ void callback(char * topic, uint8_t * payload, unsigned int len) {
   Serial.println();
 
   //Control onboard RGB LED according to received message.
-  String receivedData = payload;
+  String receivedData =(char*)payload;
   if (receivedData.equals("OFF") == true) {
     myBC20.LED_OFF();
     //    Serial.println("LED is OFF.");

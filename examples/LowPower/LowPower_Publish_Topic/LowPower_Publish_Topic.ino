@@ -14,7 +14,6 @@
  */
 
 #include "DFRobot_BC20.h"
-#include "DFRobot_Iot.h"
 #define  RED 0
 #define  BLUE 1
 #define  GREEN 2
