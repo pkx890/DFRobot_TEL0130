@@ -211,10 +211,12 @@ void loop() {
     Serial.println("stm32 enturn PSM!");
   } 
   delay(8000);
+
   //Wake up STM32.
   Serial.println("Wake up STM32!");
   //A rising edge on IRQ to wake up STM32
   myBC20.stmWakeup(WAKEUP_PIN);
+
   while (!myBC20.BC20Wakeup()) {
     Serial.println("BC20 exit PSM fail!");
     delay(1000);

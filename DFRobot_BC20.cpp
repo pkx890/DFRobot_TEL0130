@@ -2398,7 +2398,7 @@ bool DFRobot_BC20 :: subTopic(char connectID, char msgID, char* topic, char qos)
 				free(data);
 				data = NULL;
 			}
-			if(tempStr.equals("+QMTSUB: 0,1,0,1\r\n")){
+			if((tempStr.equals("+QMTSUB: 0,1,0,1\r\n"))||(tempStr.equals("+QMTSUB: 0,1,0,0\r\n"))){
 				this->mqttConneced = true;
 				delay(1000);
 				return true;
