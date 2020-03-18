@@ -1,7 +1,7 @@
 /*!
-   @file getGNSS.ino
+   @file getGNSS_simple.ino
    @brief Print all the GNSS info available in BC20.
-   @Compiling this DEMO work on Arduino AVR
+   @This DEMO can be used for master control boards with small RAM space, such as UNO and leanordo
    @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
    @licence     The MIT License (MIT)
    @author      [Peng Kaixing](kaixing.peng@dfrobot.com)
@@ -89,38 +89,31 @@ void Display_Location_Information() {
   /*
      UTC time of the anchor point
   */
-  Serial.print("Time:\t\t");
-  Serial.print(sCLK.Year);
-  Serial.print("/");
-  Serial.print(sCLK.Month);
-  Serial.print("/");
-  Serial.print(sCLK.Day);
-  Serial.print("  ");
+  Serial.print("Time:  ");
   Serial.print(sCLK.Hour);
   Serial.print(":");
   Serial.print(sCLK.Minute);
   Serial.print(":");
   Serial.println(sCLK.Second);
 
-  Serial.print("Latitude:\t");
-  Serial.print(sGGNS.LatitudeVal,6);
+  Serial.print("Latitude:  ");
+  Serial.print(sGGNS2.LatitudeVal,6);
   Serial.print(" deg ");  
-  Serial.println(sGGNS.LatitudeDir());
-  Serial.print("Longitude:\t");
-  Serial.print(sGGNS.LongitudeVal,6);
+  Serial.println(sGGNS2.LatitudeDir());
+  Serial.print("Longitude:  ");
+  Serial.print(sGGNS2.LongitudeVal,6);
   Serial.print(" deg ");  
-  Serial.println(sGGNS.LongitudeDir());
-  Serial.print("Speed:\t\t");  
-  Serial.print(sGGNS.Speed());
-  Serial.println(" km/h");  
-  /*
-     Positioning Mode
-     N - No fix
-     A - Autonomous GPS fix
-     D - Differential GPS fix
-  */  
-  Serial.print("Positioning Mode:\t");
-  Serial.println(sGGNS.PositioningMode());  
+  Serial.println(sGGNS2.LongitudeDir());
+  Serial.print("Altitude:  ");  
+  Serial.print(sGGNS2.Altitude);
+  Serial.println(" m");  
+  Serial.print("Fix Status: ");
+  Serial.println(sGGNS2.Status()); 
+  Serial.print("StatelliteNum: ");
+  Serial.print(sGGNS2.StatelliteNum);
+  Serial.println(" in Used");
+  Serial.print("HDOP: ");
+  Serial.println(sGGNS2.HDOP);  
   Serial.println("");
 }
 
@@ -159,7 +152,7 @@ void setup() {
 }
 
 void loop() {
-  myBC20.getQGNSSRD();
+  myBC20.getQGNSSRD2();
   Display_Location_Information();
   myBC20.clearGPS();
 

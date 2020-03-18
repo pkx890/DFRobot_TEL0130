@@ -20,10 +20,9 @@ sRMC_t sRMC;
 sVTG_t sVTG;
 sCLK_t sCLK;
 sGGNS_t sGGNS;
-#if !defined(ARDUINO_AVR_UNO) && !defined(ARDUINO_AVR_LEONARDO) && !defined(ARDUINO_AVR_MEGA2560)
-sSAT_t2 sSAT2;
-#endif
+sGGNS_t2 sGGNS2;
 sSAT_t sSAT;
+sSAT_t2 sSAT2;
 sCEREG_t sCEREG;
 char* ret1=NULL;
 int num_q=0;
@@ -1249,13 +1248,13 @@ static float Longitude_conversion(String str){
     float temp = 0;
     String tempStr = str;
     if(str.length() > 0){
-        if(strcmp(str.c_str(),sRMC.LatitudeVal())==0){
+        if((strcmp(str.c_str(),sRMC.LatitudeVal())==0)||(strcmp(str.c_str(),sGGA.LatitudeVal())==0)){
             temp = tempStr.substring(0,2).toInt();
             tempStr = tempStr.substring(2,tempStr.length());
             temp += (tempStr.substring(0,2).toInt())*10.0/60.0/10.0;
             tempStr = tempStr.substring(3,tempStr.length());
             temp += (tempStr.substring(0,4).toInt())*1.0/60.0/10000.0;
-        }else if(strcmp(str.c_str(),sRMC.LongitudeVal())==0){
+        }else if((strcmp(str.c_str(),sRMC.LongitudeVal())==0)||(strcmp(str.c_str(),sGGA.LongitudeVal())==0)){
             temp = tempStr.substring(0,3).toInt();
             tempStr = tempStr.substring(3,tempStr.length());
             temp += (tempStr.substring(0,2).toInt())*10.0/60.0/10.0;
@@ -1268,8 +1267,40 @@ static float Longitude_conversion(String str){
     return temp;
 }
 
-#if !defined(ARDUINO_AVR_UNO) && !defined(ARDUINO_AVR_LEONARDO) && !defined(ARDUINO_AVR_MEGA2560)
 uint8_t DFRobot_BC20 :: getQGNSSRD(void){
+	for(int i=0;i<40;i++){
+		if(sSAT2.data[i].PRN !=NULL)
+		{
+			free(sSAT2.data[i].PRN);
+			sSAT2.data[i].PRN=NULL;
+		}
+		if(sSAT2.data[i].Elev !=NULL)
+		{
+			free(sSAT2.data[i].Elev);
+			sSAT2.data[i].Elev=NULL;
+		}
+		if(sSAT2.data[i].Azim !=NULL)
+		{
+			free(sSAT2.data[i].Azim);
+			sSAT2.data[i].Azim=NULL;
+		}
+		if(sSAT2.data[i].SNR !=NULL)
+		{
+			free(sSAT2.data[i].SNR);
+			sSAT2.data[i].SNR=NULL;
+		}
+		if(sSAT2.data[i].Status !=NULL)
+		{
+			free(sSAT2.data[i].Status);
+			sSAT2.data[i].Status=NULL;
+		}
+		if(sSAT2.data[i].SYS !=NULL)
+		{
+			free(sSAT2.data[i].SYS);
+			sSAT2.data[i].SYS=NULL;
+		}		
+	}
+	uint8_t size; 
     getQGNSSRD(NMEA_RMC);
     sGGNS.LatitudeVal = Longitude_conversion(sRMC.LatitudeVal());
     sGGNS.LatitudeDir = sRMC.LatitudeDir();
@@ -1295,13 +1326,79 @@ uint8_t DFRobot_BC20 :: getQGNSSRD(void){
 	sSAT2.USE=0;
 	for(int i=0;i<sSAT.NUM;i++)
 	{
-  		sSAT2.data[i].PRN=sSAT.data[i].PRN();
- 		sSAT2.data[i].Elev=sSAT.data[i].Elev();
-		sSAT2.data[i].Azim=sSAT.data[i].Azim();
-		sSAT2.data[i].SNR=sSAT.data[i].SNR();
-		sSAT2.data[i].SYS=sSAT.data[i].SYS();
-		sSAT2.data[i].Status=sSAT.data[i].Status();
-		if(sSAT2.data[i].Status=="Y")
+  		//sSAT2.data[i].PRN=sSAT.data[i].PRN();
+		size=strlen(sSAT.data[i].PRN());
+		sSAT2.data[i].PRN=(char*)malloc(size+1);
+		if(sSAT2.data[i].PRN==NULL){
+			free(sSAT2.data[i].PRN);
+			sSAT2.data[i].PRN=NULL;
+			return 0;
+		}
+		memset(sSAT2.data[i].PRN,'\0',size+1);
+		memcpy(sSAT2.data[i].PRN,sSAT.data[i].PRN(),size);
+		
+		
+ 		//sSAT2.data[i].Elev=sSAT.data[i].Elev();
+		size=strlen(sSAT.data[i].Elev());
+		sSAT2.data[i].Elev=(char*)malloc(size+1);
+		if(sSAT2.data[i].Elev==NULL){
+			free(sSAT2.data[i].Elev);
+			sSAT2.data[i].Elev=NULL;
+			return 0;
+		}
+		memset(sSAT2.data[i].Elev,'\0',size+1);
+		memcpy(sSAT2.data[i].Elev,sSAT.data[i].Elev(),size);
+
+		
+		//sSAT2.data[i].Azim=sSAT.data[i].Azim();
+		size=strlen(sSAT.data[i].Azim());
+		sSAT2.data[i].Azim=(char*)malloc(size+1);
+		if(sSAT2.data[i].Azim==NULL){
+			free(sSAT2.data[i].Azim);
+			sSAT2.data[i].Azim=NULL;
+			return 0;
+		}
+		memset(sSAT2.data[i].Azim,'\0',size+1);
+		memcpy(sSAT2.data[i].Azim,sSAT.data[i].Azim(),size);
+
+		
+		//sSAT2.data[i].SNR=sSAT.data[i].SNR();
+		size=strlen(sSAT.data[i].SNR());
+		sSAT2.data[i].SNR=(char*)malloc(size+1);
+		if(sSAT2.data[i].SNR==NULL){
+			free(sSAT2.data[i].SNR);
+			sSAT2.data[i].SNR=NULL;
+			return 0;
+		}
+		memset(sSAT2.data[i].SNR,'\0',size+1);
+		memcpy(sSAT2.data[i].SNR,sSAT.data[i].SNR(),size);
+
+		
+		//sSAT2.data[i].SYS=sSAT.data[i].SYS();
+		size=strlen(sSAT.data[i].SYS());
+		sSAT2.data[i].SYS=(char*)malloc(size+1);
+		if(sSAT2.data[i].SYS==NULL){
+			free(sSAT2.data[i].SYS);
+			sSAT2.data[i].SYS=NULL;
+			return 0;
+		}
+		memset(sSAT2.data[i].SYS,'\0',size+1);
+		memcpy(sSAT2.data[i].SYS,sSAT.data[i].SYS(),size);
+
+		
+		//sSAT2.data[i].Status=sSAT.data[i].Status();
+		size=strlen(sSAT.data[i].Status());
+		sSAT2.data[i].Status=(char*)malloc(size+1);
+		if(sSAT2.data[i].Status==NULL){
+			free(sSAT2.data[i].Status);
+			sSAT2.data[i].Status=NULL;
+			return 0;
+		}
+		memset(sSAT2.data[i].Status,'\0',size+1);
+		memcpy(sSAT2.data[i].Status,sSAT.data[i].Status(),size);
+
+		
+		if(strcmp(sSAT2.data[i].Status,"Y")==0)
 			(sSAT2.USE)++;
 		if(ret!=NULL)
 		{
@@ -1311,19 +1408,30 @@ uint8_t DFRobot_BC20 :: getQGNSSRD(void){
 	}	
     return 1;
 }
-#endif
 
-#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO) || defined(ARDUINO_AVR_MEGA2560)
-uint8_t DFRobot_BC20 :: getQGNSSRD(void){
-    getQGNSSRD(NMEA_RMC);
-	sGGNS.LatitudeVal = Longitude_conversion(sRMC.LatitudeVal());
-	sGGNS.LongitudeVal = Longitude_conversion(sRMC.LongitudeVal());
+uint8_t DFRobot_BC20 :: getQGNSSRD2(void){
+	char* timeStr;
+	char tempdata[5]={'0'};
+    getQGNSSRD(NMEA_GGA);
+	sGGNS2.LatitudeVal = Longitude_conversion(sGGA.LatitudeVal());
+	sGGNS2.LongitudeVal = Longitude_conversion(sGGA.LongitudeVal());
+	sGGNS2.Altitude=atof(sGGA.Altitude());
+	sGGNS2.StatelliteNum=atoi(sGGA.StatelliteNum());
+	sGGNS2.HDOP=atof(sGGA.HDOP());
+	
+	timeStr = sGGA.UTC_Time();
+	substring(tempdata,timeStr,0,2);
+	sCLK.Hour=atoi(tempdata);
+	substring(timeStr,timeStr,2,strlen(timeStr));
+	substring(tempdata,timeStr,0,2);
+	sCLK.Minute=atoi(tempdata);				
+	substring(timeStr,timeStr,2,strlen(timeStr));
+	substring(tempdata,timeStr,0,2);
+	sCLK.Second=atoi(tempdata);	
     return 1;
 }
-#endif
 
 static void CheckSatelliteUse(uint8_t num){
-#ifdef ARDUINO_ESP32_DEV
     uint8_t temp = 0;
 	char* tempdata;
 	char*d;
@@ -1356,7 +1464,6 @@ static void CheckSatelliteUse(uint8_t num){
 	for(int j=0;j<strlen(d);j++){
 	  EEPROM.write(addr+j,d[j]);
 	  }  	
-#endif	  
 }
 void DFRobot_BC20::getSatelliteInformation(uint8_t start, uint8_t num, char* str, char* sys){//Given a satellite data, which satellite does it start with, how many satellites do you have   
 	char* tempStr = str;
@@ -1447,10 +1554,7 @@ void DFRobot_BC20::getSatelliteInformation(uint8_t start, uint8_t num, char* str
 		  }			
         //sSAT.data[i+start].SYS = sys;
         tempStr = removeSthString(",",tempStr);
-#ifdef ARDUINO_ESP32_DEV
         CheckSatelliteUse(i+start);
-#endif
-		
     }
 }
 

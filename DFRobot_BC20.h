@@ -907,45 +907,41 @@ typedef struct
 }sCLK_t;
 extern sCLK_t sCLK;
 
-#if defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_LEONARDO) || defined(ARDUINO_AVR_MEGA2560)
+
 typedef struct
 {
     uint8_t NUM;
 	float LatitudeVal;
 	float LongitudeVal;
+	float Altitude;
+	uint8_t StatelliteNum;
+	float HDOP;
 	char*LatitudeDir(){
-		return (sRMC.LatitudeDir());
+		return (sGGA.LatitudeDir());
 	}    
 	char*LongitudeDir(){
-		return (sRMC.LongitudeDir());
+		return (sGGA.LongitudeDir());
 	}
-	char*Heading(){
-		return (sRMC.GroundHeading());
-	}	
-	char*Speed(){
-		return (sRMC.GroundSpeed());
-	}
-	char*PositioningMode(){
-		char*a=sRMC.PositioningMode();
-		if(strcmp(a,'N')==0){
-			return ("No fix");
+	char*Status(){
+		if(strcmp(sGGA.Status(),"2")){
+			return "DGPS";
+		}else if(strcmp(sGGA.Status(),"1")){
+			return "GNSS";
 		}else{
-			return a;
-		}		
+			return "Not fixed";
+		}
 	}	
-}sGGNS_t;
-extern sGGNS_t sGGNS;
-#endif
+}sGGNS_t2;
+extern sGGNS_t2 sGGNS2;
 
-#if !defined(ARDUINO_AVR_UNO) && !defined(ARDUINO_AVR_LEONARDO) && !defined(ARDUINO_AVR_MEGA2560)
 struct sGSV2
 {
-    String PRN;
-    String Elev;
-    String Azim;
-    String SNR;
-    String Status;
-    String SYS;
+    char* PRN;
+    char* Elev;
+    char* Azim;
+    char* SNR;
+    char* Status;
+    char* SYS;
 };
 
 typedef struct
@@ -974,7 +970,6 @@ typedef struct
     uint8_t StatelliteNum;
 }sGGNS_t;
 extern sGGNS_t sGGNS;
-#endif
 
 typedef struct
 {
@@ -1141,6 +1136,7 @@ class DFRobot_BC20{
     uint8_t getQGNSSC(void);
     bool setQGNSSC(uint8_t mode);
     uint8_t getQGNSSRD(void);
+	uint8_t getQGNSSRD2(void);
     bool getQGNSSRD(char* sth);
 
     bool setCmdEcho(String str);

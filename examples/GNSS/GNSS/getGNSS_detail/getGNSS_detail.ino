@@ -1,7 +1,7 @@
 /*!
-   @file getGNSS.ino
+   @file getGNSS_detail.ino
    @brief Print all the GNSS info available in BC20.
-   @Compiling this DEMO DOSE NOT work on Arduino UNO, requiring a Dev. board with more RAM.
+   @This DEMO can be used for large RAM master boards like ESP32, MEGA2560.
    @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
    @licence     The MIT License (MIT)
    @author      [Peng Kaixing](kaixing.peng@dfrobot.com)
